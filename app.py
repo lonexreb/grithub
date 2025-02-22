@@ -68,7 +68,7 @@ def get_hardcoded_user_inputs():
     return user_info
 
 def generate_training_plan(user_info):
-    openai.api_key = openai.api_key = os.getenv('OPENAI_API_KEY')
+    openai.api_key = os.getenv('OPENAI_API_KEY')
     
     # Measure total time taken
     total_start_time = time.time()
