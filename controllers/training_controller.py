@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 from models.training_model import UserInput, TrainingPlan
 from services.training_service import training_service_instance
 
-router = APIRouter(prefix="/api", tags=["Training"])
+router = APIRouter(prefix="/training", tags=["Training"])
 
 @router.post("/generate-plan", response_model=TrainingPlan)
 async def generate_plan(user_input: UserInput):
@@ -11,6 +11,11 @@ async def generate_plan(user_input: UserInput):
         training_plan = training_service_instance.generate_training_plan(user_input)
         return training_plan
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating plan: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-# Additional endpoints (e.g., GET /plan/{user_id}) can be added here if needed.
+@router.get("/plan/{user_id}", response_model=TrainingPlan)
+async def get_plan(user_id: str):
+    plan = training_service_instance.repository.get_plan(user_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail="Training plan not found")
+    return plan

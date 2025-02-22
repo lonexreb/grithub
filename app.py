@@ -1,11 +1,15 @@
 # app.py
 from fastapi import FastAPI
-from controllers import training_controller
+from controllers import training_controller, auth_controller
 
 app = FastAPI(title="Grithub API", version="1.0")
 
-# Include routes from training controller
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to Grithub API!"}
+
 app.include_router(training_controller.router)
+app.include_router(auth_controller.router)
 
 if __name__ == "__main__":
     import uvicorn

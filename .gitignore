@@ -1,0 +1,9 @@
+# Python bytecode files
+*.py[cod]
+__pycache__/
+
+# Virtual environment directory
+grithub-env/
+
+# Environment variables
+.env

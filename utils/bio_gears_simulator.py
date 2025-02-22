@@ -1,12 +1,16 @@
 # utils/bio_gears_simulator.py
-def simulate_physiology(training_intensity: str) -> str:
+
+def simulate_physiology(difficulty: str) -> str:
     """
-    Dummy function to simulate physiological response.
-    In a real integration, you would call BioGears engine functions.
+    Dummy function to simulate physiological response using BioGears.
+    This function takes a difficulty level ('low', 'medium', 'high') and returns
+    a simulated insight string. In production, replace this with actual BioGears API calls.
     """
-    insights = {
-        "low": "Simulated heart rate remains stable. Recovery time: 10 minutes.",
-        "medium": "Moderate increase in heart rate. Recovery time: 20 minutes.",
-        "high": "Significant stress observed. Recovery time: 30 minutes.",
-    }
-    return insights.get(training_intensity, "No simulation available.")
+    if difficulty == "low":
+        return "Physiological simulation: Stable metrics, minimal strain."
+    elif difficulty == "medium":
+        return "Physiological simulation: Moderate strain observed, 20-minute recovery."
+    elif difficulty == "high":
+        return "Physiological simulation: High strain detected, 30-minute recovery recommended."
+    else:
+        return "No simulation data available."

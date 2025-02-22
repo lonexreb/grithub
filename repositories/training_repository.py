@@ -1,17 +1,16 @@
 # repositories/training_repository.py
-from typing import Dict
+from typing import Dict, Optional
 from models.training_model import TrainingPlan
 
 class TrainingRepository:
     def __init__(self):
-        # Using a simple in-memory storage dictionary
-        self._plans: Dict[str, TrainingPlan] = {}
+        self._storage: Dict[str, TrainingPlan] = {}
 
-    def save_plan(self, user_id: str, plan: TrainingPlan):
-        self._plans[user_id] = plan
+    def save_plan(self, user_id: str, plan: TrainingPlan) -> None:
+        self._storage[user_id] = plan
 
-    def get_plan(self, user_id: str) -> TrainingPlan:
-        return self._plans.get(user_id)
+    def get_plan(self, user_id: str) -> Optional[TrainingPlan]:
+        return self._storage.get(user_id)
 
-# Instantiate a single repository instance for the app (ensuring DRY)
+# Create a singleton instance to be reused across the application
 repository_instance = TrainingRepository()
