@@ -65,80 +65,84 @@ async def get_workouts():
 # --- POST Endpoint ---
 
 @app.post("/api/workout")
-def generate_training_plan():
-   openai.api_key = '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'
-   # Define the prompt that instructs the model to output JSON
-   prompt = (
-       "You are a fitness trainer creating a 10-day workout plan. Please provide the plan in valid JSON format suitable for gamification, where each day is represented as a “card.” Follow these rules:\n\n"
-       "1. Return only valid JSON — no extra text, explanations, or markdown formatting.\n"
-       "2. Use the following JSON structure exactly:\n\n"
-       "{\n"
-       "  \"trainingPlanName\": \"string\",\n"
-       "  \"cards\": [\n"
-       "    {\n"
-       "      \"dayNumber\": number,\n"
-       "      \"title\": \"string\",\n"
-       "      \"objectives\": [\"string\", \"string\"],\n"
-       "      \"exercises\": [\n"
-       "        {\n"
-       "          \"name\": \"string\",\n"
-       "          \"sets\": number,\n"
-       "          \"reps\": number,\n"
-       "          \"restSeconds\": number,\n"
-       "          \"durationSeconds\": number,\n"
-       "          \"intervalSeconds\": number,\n"
-       "          \"rounds\": number,\n"
-       "          \"durationMinutes\": number,\n"
-       "          \"restMinutes\": number,\n"
-       "          \"description\": \"string\",\n"
-       "          \"repsPerLeg\": number,\n"
-       "          \"repsPerSide\": number\n"
-       "        }\n"
-       "      ],\n"
-       "      \"xp\": number,\n"
-       "      \"challenges\": [\n"
-     "        {\n"
-       "          \"challengeName\": \"string\",\n"
-       "          \"description\": \"string\",\n"
-       "          \"xpReward\": number\n"
-       "        }\n"
-       "      ]\n"
-       "    }\n"
-       "  ]\n"
-       "}\n\n"
-       "3. Each of the 10 days must:\n"
-       "   - Have a \"dayNumber\" field (1 through 10).\n"
-       "   - Include a \"title\" and \"objectives\" describing the daily focus.\n"
-       "   - List \"exercises\" with details like sets, reps, and rest.\n"
-       "   - Assign an \"xp\" value for the day.\n"
-       "   - Include at least one \"challenge\" with a name, description, and xpReward.\n\n"
-       "4. Use realistic exercises and keep the plan balanced (e.g., strength, cardio, core, active recovery).\n\n"
-       "Return only JSON that matches the above schema. Do not include any additional commentary or explanations."
-   )
+def generate_training_plan(user_info):
+    openai.api_key = openai.api_key = os.getenv('OPENAI_API_KEY')
+    
+    # Measure total time taken
+    total_start_time = time.time()
 
+    prompt = (
+        f"You are a professional fitness trainer creating a 20-week workout plan for a user with the following details:\n"
+        f"Age: {user_info['age']} years\n"
+        f"Height: {user_info['height']} cm\n"
+        f"Weight: {user_info['weight']} kg\n"
+        f"Current Fitness Level: {user_info['current_fitness_level']}\n"
+        f"Injury History: {user_info['injury_history']}\n"
+        f"Desired Goals: {user_info['desired_goals']}\n\n"
+        f"Generate valid JSON output where the plan consists of 10 cards, each representing a 2-week (14-day) training block. "
+        f"Provide a high-level repetitive workout routine for each 2-week block without detailed day-by-day plans. "
+        f"The routine should include simple and effective exercises, repeated consistently throughout the block, "
+        f"tailored to the user's fitness level and goals while considering any injury constraints.\n\n"
+        f"The JSON structure must strictly follow this format:\n"
+        f"- 'trainingPlanName': The name of the training plan.\n"
+        f"- 'cards': An array of 10 objects, each representing a 2-week block.\n"
+        f"- Each card must include:\n"
+        f"  - 'cardNumber': The card index (1 to 10).\n"
+        f"  - 'title': A brief title for the 2-week training block.\n"
+        f"  - 'objectives': A list of key goals for this block.\n"
+        f"  - 'routine': A list of 3-5 exercises with sets, reps, rest periods, and descriptions.\n"
+        f"  - 'challenges': A list of simple, repetitive challenges for this block.\n\n"
+        f"Instructions:\n"
+        f"1. Provide exactly 10 cards, each covering a 2-week repetitive training block.\n"
+        f"2. Avoid granular day-by-day plans. Instead, focus on a consistent routine for the entire block.\n"
+        f"3. Ensure the JSON is complete and valid.\n"
+        f"4. Return only valid JSON, strictly adhering to the provided schema.\n"
+        f"5. Do not include any code formatting, code block syntax, or additional text."
+    )
 
-   messages = [
-       {"role": "system", "content": "You are a helpful assistant that outputs valid JSON."},
-       {"role": "user", "content": prompt}
-   ]
+    messages = [
+        {"role": "system", "content": "You are a highly capable assistant that outputs only valid JSON."},
+        {"role": "user", "content": prompt}
+    ]
 
+    try:
+        # Start timer for this request
+        start_time = time.time()
 
-   response = openai.ChatCompletion.create(
-       model="gpt-4o",  # You can use another model like "gpt-3.5-turbo" if needed.
-       messages=messages,
-       temperature=0  # Lower temperature helps ensure deterministic output.
-   )
+        response = openai.ChatCompletion.create(
+            model="gpt-4o",
+            messages=messages,
+            temperature=0.7  # Limit tokens to avoid overly large responses
+        )
 
+        json_output = response['choices'][0]['message']['content'].strip()
 
-   json_output = response['choices'][0]['message']['content']
-  
-   # Optionally, try to parse the output to ensure it's valid JSON
-   try:
-       parsed_json = json.loads(json_output)
-   except json.JSONDecodeError as e:
-       print("JSON decoding error:", e)
-       parsed_json = None
+        print(f"Training plan generated in {time.time() - start_time:.2f} seconds.")
 
+        # Parse the output as JSON
+        training_plan = json.loads(json_output)
+
+        # Save the complete training plan to a JSON file
+        with open('high_level_training_plan.json', 'w', encoding='utf-8') as f:
+            json.dump(training_plan, f, indent=2, ensure_ascii=False)
+        print("\nTraining plan successfully saved to 'high_level_training_plan.json'.")
+        
+        # Pretty print the final training plan
+        print("\nGenerated Training Plan:")
+        print(json.dumps(training_plan, indent=2, ensure_ascii=False))
+
+    except json.JSONDecodeError as e:
+        print(f"JSON decoding error: {e}")
+        print("Raw output from the API:")
+        print(json_output)
+    except Exception as e:
+        print(f"Error generating the training plan: {e}")
+
+    print(f"\nTotal time taken: {time.time() - total_start_time:.2f} seconds.")
+
+if __name__ == "__main__":
+    user_info = get_hardcoded_user_inputs()
+    generate_training_plan(user_info)
 
 # --- Global Error Handler ---
 
