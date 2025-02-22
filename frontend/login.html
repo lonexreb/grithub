@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grithub Login</title>
+  
+  <!-- TailwindCSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-gray-50 font-roboto">
+  <header class="bg-blue-600 text-white p-4 flex flex-col items-center">
+    <div class="flex items-center space-x-3">
+      <img src="images/logo.png" alt="Grithub Logo" class="w-10 h-10" />
+      <h1 class="text-xl font-bold">Grithub: Your Sports Skill Development Journey</h1>
+    </div>
+  </header>
+  
+  <main class="max-w-md mx-auto p-6">
+    <section class="bg-white p-6 rounded shadow">
+      <h2 class="text-2xl font-bold mb-4 text-center">Login</h2>
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input
+            type="email"
+            id="login-email"
+            class="w-full border rounded p-2"
+            placeholder="user@example.com"
+            required
+          />
+        </div>
+        <div>
+          <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input
+            type="password"
+            id="login-password"
+            class="w-full border rounded p-2"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-blue-600 text-white rounded p-2 hover:bg-blue-700 transition"
+        >
+          Login
+        </button>
+      </form>
+    </section>
+  </main>
+  
+  <script>
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      // For this demo, skip any real authentication and simply redirect
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

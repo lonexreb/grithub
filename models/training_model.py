@@ -3,15 +3,18 @@ from pydantic import BaseModel, Field
 from typing import List
 
 class UserInput(BaseModel):
-    bmi: float = Field(...)
-    daily_exercise: int = Field(...)
-    diet_quality: int = Field(...)
+    height: float   # in centimeters
+    weight: float   # in kilograms
+    age: int
+    fitness_level: str
+    injury_history: str = Field("", description="Optional injury history")
+    target_goal: str = Field("", description="Optional target goal")
 
 class TrainingStep(BaseModel):
     step_number: int
     description: str
-    target_difficulty: str
-    recommended_duration: int
+    target_difficulty: str  # e.g., "low", "medium", "high"
+    recommended_duration: int  # in minutes
     simulated_insight: str = Field("")
 
 class TrainingPlan(BaseModel):
