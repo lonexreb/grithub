@@ -1,19 +1,16 @@
-# app.py
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from controllers import training_controller, auth_controller, gamification_controller
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Grithub API", version="1.0")
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to Grithub API!"}
-
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
-app.include_router(training_controller.router)
+# Include API routes first
 app.include_router(auth_controller.router)
+app.include_router(training_controller.router)
 app.include_router(gamification_controller.router)
+
+# Mount static files at the root. This will serve index.html by default.
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 if __name__ == "__main__":
     import uvicorn

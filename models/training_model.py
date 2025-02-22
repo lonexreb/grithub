@@ -1,4 +1,3 @@
-# models/training_model.py
 from pydantic import BaseModel, Field
 from typing import List
 
@@ -13,7 +12,7 @@ class UserInput(BaseModel):
 class TrainingStep(BaseModel):
     step_number: int
     description: str
-    target_difficulty: str  # e.g., "low", "medium", "high"
+    target_difficulty: str
     recommended_duration: int  # in minutes
     simulated_insight: str = Field("")
 

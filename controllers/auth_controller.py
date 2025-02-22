@@ -20,5 +20,8 @@ async def login(user_in: UserIn):
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     access_token_expires = timedelta(minutes=30)
-    access_token = create_access_token(data={"sub": user.email, "id": user.id}, expires_delta=access_token_expires)
+    access_token = create_access_token(
+        data={"sub": user.email, "id": user.id},
+        expires_delta=access_token_expires
+    )
     return {"access_token": access_token, "token_type": "bearer"}

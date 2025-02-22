@@ -12,5 +12,4 @@ class TrainingRepository:
     def get_plan(self, user_id: str) -> Optional[TrainingPlan]:
         return self._storage.get(user_id)
 
-# Create a singleton instance to be reused across the application
 repository_instance = TrainingRepository()
