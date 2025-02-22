@@ -1,4 +1,6 @@
 import os
+import time
+import json
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,9 +8,6 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from motor.motor_asyncio import AsyncIOMotorClient
 import openai
-import time   # <--- Notice we use 'time' in your code for measuring time
-import json
-
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -24,41 +23,34 @@ if not MONGODB_URI or not OPENAI_API_KEY:
 openai.api_key = OPENAI_API_KEY
 
 # Initialize FastAPI app
-app = FastAPI(
-    title="Workout Plan API",
-    description="API for generating personalized workout plans"
-)
+app = FastAPI(title="Workout Plan API", description="API for generating personalized workout plans")
 
-# Optionally add CORS middleware
+# Add CORS middleware (adjust origins as needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],  # In production, set this to your frontend's domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 1. Mount the frontend folder for static files (CSS, JS, images)
+# Mount the frontend folder as static files
+# This makes files available under http://localhost:8000/static/...
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
-# 2. Serve index.html at the root URL
+# Serve index.html at the root ("/")
 @app.get("/", response_class=HTMLResponse)
 def serve_index():
     index_path = os.path.join("frontend", "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-    return {"message": "index.html not found"}
+    raise HTTPException(status_code=404, detail="index.html not found")
 
-# ==============
-# MONGO CLIENT
-# ==============
+# --- Existing Database and API Setup ---
 client = AsyncIOMotorClient(MONGODB_URI)
-db = client.get_default_database()  
+db = client.get_default_database()
 collection = db.workout_requests
 
-# ==============
-# Pydantic Model
-# ==============
 class WorkoutRequest(BaseModel):
     height: float = Field(..., description="Height in cm")
     weight: float = Field(..., description="Weight in kg")
@@ -67,28 +59,35 @@ class WorkoutRequest(BaseModel):
     daysToAchieveGoal: int = Field(..., gt=0, description="Days to achieve the desired BMI")
     desiredBMI: float = Field(..., description="Desired BMI")
 
-# ==============
-# GET Endpoints
-# ==============
 @app.get("/api/health")
 async def health_check():
-    """Simple endpoint to check API health."""
     return {"status": "OK"}
 
 @app.get("/api/workouts")
 async def get_workouts():
-    """Retrieve all stored workout requests from MongoDB."""
     workouts = []
     cursor = collection.find({})
     async for document in cursor:
-        document["_id"] = str(document["_id"])  # Convert ObjectId to string
+        document["_id"] = str(document["_id"])
         workouts.append(document)
     return {"workouts": workouts}
 
-# ==============
-# POST Endpoint
-# ==============
 @app.post("/api/workout")
+def get_hardcoded_user_inputs():
+    # Hardcoded user input for testing and quick execution
+    user_info = {
+        'age': 25,
+        'height': 175,  # in cm
+        'weight': 100,    # in kg
+        'current_fitness_level': 'beginner',
+        'injury_history': 'none',
+        'desired_goals': 'weight loss'
+    }
+    print("Using hardcoded user inputs:")
+    for key, value in user_info.items():
+        print(f"{key.replace('_', ' ').title()}: {value}")
+    return user_info
+
 def generate_training_plan(user_info):
     openai.api_key = openai.api_key = os.getenv('OPENAI_API_KEY')
     
@@ -167,17 +166,3 @@ def generate_training_plan(user_info):
 if __name__ == "__main__":
     user_info = get_hardcoded_user_inputs()
     generate_training_plan(user_info)
-
-# ==============
-# Global Handler
-# ==============
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
-
-# ==============
-# Entry Point
-# ==============
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
