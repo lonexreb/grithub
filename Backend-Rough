@@ -1,0 +1,150 @@
+import os
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+from motor.motor_asyncio import AsyncIOMotorClient
+import openai
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve critical environment variables
+MONGODB_URI = os.getenv("MONGODB_URI")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not MONGODB_URI or not OPENAI_API_KEY:
+    raise Exception("Missing environment variables: MONGODB_URI and/or OPENAI_API_KEY")
+
+# Configure the OpenAI API
+openai.api_key = OPENAI_API_KEY
+
+# Initialize FastAPI app
+app = FastAPI(title="Workout Plan API", description="API for generating personalized workout plans")
+
+# Optionally add CORS middleware (adjust origins as needed for production)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For production, restrict this to your frontend domain(s)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Create an asynchronous MongoDB client
+client = AsyncIOMotorClient(MONGODB_URI)
+db = client.get_default_database()  # Adjust if your default database is not set in the URI
+collection = db.workout_requests
+
+# Define a Pydantic model for validating incoming workout requests
+class WorkoutRequest(BaseModel):
+    height: float = Field(..., description="Height in cm")
+    weight: float = Field(..., description="Weight in kg")
+    age: int = Field(..., gt=0, description="Age in years")
+    currentExerciseLevel: str = Field(..., description="Current exercise level")
+    daysToAchieveGoal: int = Field(..., gt=0, description="Days to achieve the desired BMI")
+    desiredBMI: float = Field(..., description="Desired BMI")
+
+# --- GET Endpoints ---
+
+@app.get("/api/health")
+async def health_check():
+    """Simple endpoint to check API health."""
+    return {"status": "OK"}
+
+@app.get("/api/workouts")
+async def get_workouts():
+    """Retrieve all stored workout requests from MongoDB."""
+    workouts = []
+    cursor = collection.find({})
+    async for document in cursor:
+        document["_id"] = str(document["_id"])  # Convert ObjectId to string
+        workouts.append(document)
+    return {"workouts": workouts}
+
+# --- POST Endpoint ---
+
+@app.post("/api/workout")
+def generate_training_plan():
+   openai.api_key = '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'
+   # Define the prompt that instructs the model to output JSON
+   prompt = (
+       "You are a fitness trainer creating a 10-day workout plan. Please provide the plan in valid JSON format suitable for gamification, where each day is represented as a “card.” Follow these rules:\n\n"
+       "1. Return only valid JSON — no extra text, explanations, or markdown formatting.\n"
+       "2. Use the following JSON structure exactly:\n\n"
+       "{\n"
+       "  \"trainingPlanName\": \"string\",\n"
+       "  \"cards\": [\n"
+       "    {\n"
+       "      \"dayNumber\": number,\n"
+       "      \"title\": \"string\",\n"
+       "      \"objectives\": [\"string\", \"string\"],\n"
+       "      \"exercises\": [\n"
+       "        {\n"
+       "          \"name\": \"string\",\n"
+       "          \"sets\": number,\n"
+       "          \"reps\": number,\n"
+       "          \"restSeconds\": number,\n"
+       "          \"durationSeconds\": number,\n"
+       "          \"intervalSeconds\": number,\n"
+       "          \"rounds\": number,\n"
+       "          \"durationMinutes\": number,\n"
+       "          \"restMinutes\": number,\n"
+       "          \"description\": \"string\",\n"
+       "          \"repsPerLeg\": number,\n"
+       "          \"repsPerSide\": number\n"
+       "        }\n"
+       "      ],\n"
+       "      \"xp\": number,\n"
+       "      \"challenges\": [\n"
+     "        {\n"
+       "          \"challengeName\": \"string\",\n"
+       "          \"description\": \"string\",\n"
+       "          \"xpReward\": number\n"
+       "        }\n"
+       "      ]\n"
+       "    }\n"
+       "  ]\n"
+       "}\n\n"
+       "3. Each of the 10 days must:\n"
+       "   - Have a \"dayNumber\" field (1 through 10).\n"
+       "   - Include a \"title\" and \"objectives\" describing the daily focus.\n"
+       "   - List \"exercises\" with details like sets, reps, and rest.\n"
+       "   - Assign an \"xp\" value for the day.\n"
+       "   - Include at least one \"challenge\" with a name, description, and xpReward.\n\n"
+       "4. Use realistic exercises and keep the plan balanced (e.g., strength, cardio, core, active recovery).\n\n"
+       "Return only JSON that matches the above schema. Do not include any additional commentary or explanations."
+   )
+
+
+   messages = [
+       {"role": "system", "content": "You are a helpful assistant that outputs valid JSON."},
+       {"role": "user", "content": prompt}
+   ]
+
+
+   response = openai.ChatCompletion.create(
+       model="gpt-4o",  # You can use another model like "gpt-3.5-turbo" if needed.
+       messages=messages,
+       temperature=0  # Lower temperature helps ensure deterministic output.
+   )
+
+
+   json_output = response['choices'][0]['message']['content']
+  
+   # Optionally, try to parse the output to ensure it's valid JSON
+   try:
+       parsed_json = json.loads(json_output)
+   except json.JSONDecodeError as e:
+       print("JSON decoding error:", e)
+       parsed_json = None
+
+
+# --- Global Error Handler ---
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+
+# To run the app, use a command like:
+# uvicorn main:app --host 0.0.0.0 --port 8000 --reload
