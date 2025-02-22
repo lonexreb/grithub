@@ -5,19 +5,16 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
-from motor.motor_asyncio import AsyncIOMotorClient
 import openai
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Retrieve critical environment variables
-MONGODB_URI = os.getenv("MONGODB_URI")
+# Retrieve the critical environment variable
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if not MONGODB_URI or not OPENAI_API_KEY:
-    raise Exception("Missing environment variables: MONGODB_URI and/or OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise Exception("Missing environment variable: OPENAI_API_KEY")
 
 # Configure the OpenAI API
 openai.api_key = OPENAI_API_KEY
@@ -25,17 +22,16 @@ openai.api_key = OPENAI_API_KEY
 # Initialize FastAPI app
 app = FastAPI(title="Workout Plan API", description="API for generating personalized workout plans")
 
-# Add CORS middleware (adjust origins as needed)
+# Add CORS middleware (adjust origins as needed for production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, set this to your frontend's domain
+    allow_origins=["*"],  # For production, restrict this to your frontend domain(s)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Mount the frontend folder as static files
-# This makes files available under http://localhost:8000/static/...
 app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 # Serve index.html at the root ("/")
@@ -46,31 +42,14 @@ def serve_index():
         return FileResponse(index_path)
     raise HTTPException(status_code=404, detail="index.html not found")
 
-# --- Existing Database and API Setup ---
-client = AsyncIOMotorClient(MONGODB_URI)
-db = client.get_default_database()
-collection = db.workout_requests
-
-class WorkoutRequest(BaseModel):
-    height: float = Field(..., description="Height in cm")
-    weight: float = Field(..., description="Weight in kg")
-    age: int = Field(..., gt=0, description="Age in years")
-    currentExerciseLevel: str = Field(..., description="Current exercise level")
-    daysToAchieveGoal: int = Field(..., gt=0, description="Days to achieve the desired BMI")
-    desiredBMI: float = Field(..., description="Desired BMI")
+# --- GET Endpoint for Health Check ---
 
 @app.get("/api/health")
 async def health_check():
+    """Simple endpoint to check API health."""
     return {"status": "OK"}
 
-@app.get("/api/workouts")
-async def get_workouts():
-    workouts = []
-    cursor = collection.find({})
-    async for document in cursor:
-        document["_id"] = str(document["_id"])
-        workouts.append(document)
-    return {"workouts": workouts}
+# --- POST Endpoint for Generating Workout Plan ---
 
 @app.post("/api/workout")
 def get_hardcoded_user_inputs():
