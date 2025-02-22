@@ -93,38 +93,59 @@
     </main>
       
     <!-- JavaScript to handle form submission and generate user profile output -->
-    <script>
-        document.getElementById('training-plan-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            // Capture form values
-            const height = document.getElementById('height').value;
-            const weight = document.getElementById('weight').value;
-            const age = document.getElementById('age').value;
-            // const diet = document.getElementById('diet').value;
-            const fitness_level = document.getElementById('fitness_level').value;
-            const injury_history = document.getElementById('injury_history').value;
-            const target_goal = document.getElementById('target_goal').value;
-            
-            // Create a user profile string
-            const userProfileString = `Height: ${height}, Weight: ${weight}, Age: ${age}, Diet: ${diet}, Fitness Level: ${fitness_level}, Injury History: ${injury_history}, Target Goal: ${target_goal}`;
-            
-            // Create a user profile dictionary (object in JavaScript)
-            const userProfileDict = {
-               height: height,
-               weight: weight,
-               age: age,
-              //  diet: diet,
-               fitness_level: fitness_level,
-               injury_history: injury_history,
-               target_goal: target_goal
-            };
-            
-            // Display the generated profile string in the output div
-            document.getElementById('user-profile-output').textContent = userProfileString;
-            
-            // Log the dictionary to the console for inspection
-            console.log('User Profile (Dictionary):', userProfileDict);
-        });
-    </script>
+    <!-- Inside your index.html, update your script as follows -->
+<script>
+  document.getElementById('training-plan-form').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      
+      // Capture form values
+      const height = document.getElementById('height').value;
+      const weight = document.getElementById('weight').value;
+      const age = document.getElementById('age').value;
+      const fitness_level = document.getElementById('fitness_level').value;
+      const injury_history = document.getElementById('injury_history').value;
+      const target_goal = document.getElementById('target_goal').value;
+      
+      // Create a user profile object to send to the backend
+      const userProfileDict = {
+         height: parseFloat(height),
+         weight: parseFloat(weight),
+         age: parseInt(age),
+         currentExerciseLevel: fitness_level,
+         injury_history: injury_history,
+         target_goal: target_goal
+      };
+
+      // Optional: Display the captured input for debugging
+      document.getElementById('user-profile-output').textContent = JSON.stringify(userProfileDict, null, 2);
+      
+      try {
+          // Make a POST request to the /api/workout endpoint
+          const response = await fetch("/api/workout", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json"
+              },
+              body: JSON.stringify(userProfileDict)
+          });
+
+          if (!response.ok) {
+              throw new Error("Network response was not ok");
+          }
+
+          // Parse the JSON response
+          const result = await response.json();
+          console.log("Training Plan:", result);
+
+          // Optional: Display the training plan in the output div
+          document.getElementById('user-profile-output').textContent = JSON.stringify(result.trainingPlan, null, 2);
+          
+      } catch (error) {
+          console.error("Error generating training plan:", error);
+          document.getElementById('user-profile-output').textContent = "Error generating training plan. Check console for details.";
+      }
+  });
+</script>
+
 </body>
 </html>
