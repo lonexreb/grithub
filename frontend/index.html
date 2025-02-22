@@ -9,19 +9,16 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Link to your custom stylesheet -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body class="font-roboto">
     <!-- Centered header: using flex-col and items-center -->
     <header class="text-white p-4 flex flex-col items-center">
-        <!-- Branding: Logo and Title -->
         <div class="flex items-center space-x-3">
-          <!-- Place your logo.png file in the same folder as index.html or in an "images" folder -->
-          <img src="images/logo.png" alt="Grithub Logo" class="w-10 h-10" />
+          <img src="/static/images/logo.png" alt="Grithub Logo" class="w-10 h-10" />
           <h1 class="text-xl font-bold">Grithub: Your Sports Skill Development Journey</h1>
         </div>
         
-        <!-- Navigation (minimal) -->
         <nav class="mt-2">
           <ul class="flex space-x-4">
             <li><a href="#" class="hover:underline">Home</a></li>
@@ -52,12 +49,6 @@
                 <input type="number" id="age" name="age" placeholder="e.g., 25" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500" />
             </div>
             
-            <!-- Diet Details Input -->
-            <!-- <div class="mb-4">
-                <label for="diet" class="block mb-1 font-medium">Diet Details</label>
-                <input type="text" id="diet" name="diet" placeholder="e.g., Balanced diet" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500" />
-            </div> -->
-            
             <!-- Fitness Level Dropdown -->
             <div class="mb-4">
                 <label for="fitness_level" class="block mb-1 font-medium">Current Fitness Level</label>
@@ -87,65 +78,59 @@
             </button>
           </form>
           
-          <!-- Section to display the generated user profile -->
-          <div id="user-profile-output" class="mt-4 text-gray-700"></div>
+          <!-- Section to display the generated training plan -->
+          <div id="user-profile-output" class="mt-4 text-gray-700 whitespace-pre-wrap"></div>
         </section>
     </main>
       
-    <!-- JavaScript to handle form submission and generate user profile output -->
-    <!-- Inside your index.html, update your script as follows -->
-<script>
-  document.getElementById('training-plan-form').addEventListener('submit', async function(event) {
-      event.preventDefault();
-      
-      // Capture form values
-      const height = document.getElementById('height').value;
-      const weight = document.getElementById('weight').value;
-      const age = document.getElementById('age').value;
-      const fitness_level = document.getElementById('fitness_level').value;
-      const injury_history = document.getElementById('injury_history').value;
-      const target_goal = document.getElementById('target_goal').value;
-      
-      // Create a user profile object to send to the backend
-      const userProfileDict = {
-         height: parseFloat(height),
-         weight: parseFloat(weight),
-         age: parseInt(age),
-         currentExerciseLevel: fitness_level,
-         injury_history: injury_history,
-         target_goal: target_goal
-      };
-
-      // Optional: Display the captured input for debugging
-      document.getElementById('user-profile-output').textContent = JSON.stringify(userProfileDict, null, 2);
-      
-      try {
-          // Make a POST request to the /api/workout endpoint
-          const response = await fetch("/api/workout", {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/json"
-              },
-              body: JSON.stringify(userProfileDict)
-          });
-
-          if (!response.ok) {
-              throw new Error("Network response was not ok");
-          }
-
-          // Parse the JSON response
-          const result = await response.json();
-          console.log("Training Plan:", result);
-
-          // Optional: Display the training plan in the output div
-          document.getElementById('user-profile-output').textContent = JSON.stringify(result.trainingPlan, null, 2);
+    <script>
+      document.getElementById('training-plan-form').addEventListener('submit', async function(event) {
+          event.preventDefault();
           
-      } catch (error) {
-          console.error("Error generating training plan:", error);
-          document.getElementById('user-profile-output').textContent = "Error generating training plan. Check console for details.";
-      }
-  });
-</script>
-
+          // Capture form values
+          const height = document.getElementById('height').value;
+          const weight = document.getElementById('weight').value;
+          const age = document.getElementById('age').value;
+          const fitness_level = document.getElementById('fitness_level').value;
+          const injury_history = document.getElementById('injury_history').value;
+          const target_goal = document.getElementById('target_goal').value;
+          
+          // Create a user profile object to send to the backend
+          const userProfileDict = {
+             height: parseFloat(height),
+             weight: parseFloat(weight),
+             age: parseInt(age),
+             currentExerciseLevel: fitness_level,
+             injury_history: injury_history,
+             target_goal: target_goal
+          };
+      
+          try {
+              // Make a POST request to the /api/workout endpoint
+              const response = await fetch("/api/workout", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(userProfileDict)
+              });
+      
+              if (!response.ok) {
+                  throw new Error("Network response was not ok");
+              }
+      
+              // Parse the JSON response
+              const result = await response.json();
+              console.log("Training Plan:", result);
+      
+              // Display the training plan in the output div
+              document.getElementById('user-profile-output').textContent = JSON.stringify(result.trainingPlan, null, 2);
+              
+          } catch (error) {
+              console.error("Error generating training plan:", error);
+              document.getElementById('user-profile-output').textContent = "Error generating training plan. Check console for details.";
+          }
+      });
+    </script>
 </body>
 </html>
