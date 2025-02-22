@@ -16,7 +16,7 @@
     <header class="text-white p-4 flex flex-col items-center">
         <!-- Branding: Logo and Title -->
         <div class="flex items-center space-x-3">
-          <!-- Place your logo.png file in the same folder as index.html or in an "images" folder (update src accordingly) -->
+          <!-- Place your logo.png file in the same folder as index.html or in an "images" folder -->
           <img src="images/logo.png" alt="Grithub Logo" class="w-10 h-10" />
           <h1 class="text-xl font-bold">Grithub: Your Sports Skill Development Journey</h1>
         </div>
@@ -28,9 +28,9 @@
             <li><a href="#" class="hover:underline">About</a></li>
           </ul>
         </nav>
-      </header>
+    </header>
       
-      <main class="p-6">
+    <main class="p-6">
         <section class="max-w-md mx-auto p-6 rounded shadow bg-[#D2ECFF]">
           <h2 class="text-lg font-semibold mb-4">Enter Your Details</h2>
           <form id="training-plan-form">
@@ -38,47 +38,47 @@
             <div class="mb-4">
                 <label for="height" class="block mb-1 font-medium">Enter your Height (cm/inches)</label>
                 <input type="number" id="height" name="height" placeholder="e.g., 170" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500" />
-              </div>
+            </div>
               
-              <!-- Weight Input -->
-              <div class="mb-4">
+            <!-- Weight Input -->
+            <div class="mb-4">
                 <label for="weight" class="block mb-1 font-medium">Enter your Weight (lbs/kg)</label>
                 <input type="number" id="weight" name="weight" placeholder="e.g., 170" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500" />
-              </div>
+            </div>
               
-              <!-- Age Input -->
-              <div class="mb-4">
+            <!-- Age Input -->
+            <div class="mb-4">
                 <label for="age" class="block mb-1 font-medium">Enter your Age</label>
                 <input type="number" id="age" name="age" placeholder="e.g., 25" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500" />
-              </div>
+            </div>
             
             <!-- Diet Details Input -->
-            <div class="mb-4">
-              <label for="diet" class="block mb-1 font-medium">Diet Details</label>
-              <input type="text" id="diet" name="diet" placeholder="e.g., Balanced diet" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500" />
-            </div>
+            <!-- <div class="mb-4">
+                <label for="diet" class="block mb-1 font-medium">Diet Details</label>
+                <input type="text" id="diet" name="diet" placeholder="e.g., Balanced diet" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500" />
+            </div> -->
             
             <!-- Fitness Level Dropdown -->
             <div class="mb-4">
-              <label for="fitness_level" class="block mb-1 font-medium">Current Fitness Level</label>
-              <select id="fitness_level" name="fitness_level" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500">
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-                <option value="Expert">Expert</option>
-              </select>
+                <label for="fitness_level" class="block mb-1 font-medium">Current Fitness Level</label>
+                <select id="fitness_level" name="fitness_level" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500">
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                  <option value="Expert">Expert</option>
+                </select>
             </div>
             
             <!-- Injury History -->
             <div class="mb-4">
                 <label for="injury_history" class="block mb-1 font-medium">Injury History</label>
-                <input
-                type="text"
-                id="injury_history"
-                name="injury_history"
-                placeholder="e.g., Wrist Sprains"
-                class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
-                />
+                <input type="text" id="injury_history" name="injury_history" placeholder="e.g., Wrist Sprains" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500" />
+            </div>
+
+            <!-- Target Goal -->
+            <div class="mb-4">
+                <label for="target_goal" class="block mb-1 font-medium">Target Goal</label>
+                <input type="text" id="target_goal" name="target_goal" placeholder="e.g., Build Muscle, Improve Stamina" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500" />
             </div>
             
             <!-- Submit Button -->
@@ -90,29 +90,33 @@
           <!-- Section to display the generated user profile -->
           <div id="user-profile-output" class="mt-4 text-gray-700"></div>
         </section>
-      </main>
+    </main>
       
-      <!-- JavaScript to handle form submission and generate user profile output -->
-      <script>
+    <!-- JavaScript to handle form submission and generate user profile output -->
+    <script>
         document.getElementById('training-plan-form').addEventListener('submit', function(event) {
             event.preventDefault();
             // Capture form values
-            const bmi = document.getElementById('bmi').value;
-            const exercise = document.getElementById('exercise').value;
-            const diet = document.getElementById('diet').value;
+            const height = document.getElementById('height').value;
+            const weight = document.getElementById('weight').value;
+            const age = document.getElementById('age').value;
+            // const diet = document.getElementById('diet').value;
             const fitness_level = document.getElementById('fitness_level').value;
-            const goals = document.getElementById('goals').value;
+            const injury_history = document.getElementById('injury_history').value;
+            const target_goal = document.getElementById('target_goal').value;
             
             // Create a user profile string
-            const userProfileString = `BMI: ${bmi}, Exercise Level: ${exercise}, Diet: ${diet}, Fitness Level: ${fitness_level}, Goals: ${goals}`;
+            const userProfileString = `Height: ${height}, Weight: ${weight}, Age: ${age}, Diet: ${diet}, Fitness Level: ${fitness_level}, Injury History: ${injury_history}, Target Goal: ${target_goal}`;
             
             // Create a user profile dictionary (object in JavaScript)
             const userProfileDict = {
-               bmi: bmi,
-               exercise: exercise,
-               diet: diet,
+               height: height,
+               weight: weight,
+               age: age,
+              //  diet: diet,
                fitness_level: fitness_level,
-               goals: goals
+               injury_history: injury_history,
+               target_goal: target_goal
             };
             
             // Display the generated profile string in the output div
@@ -121,7 +125,7 @@
             // Log the dictionary to the console for inspection
             console.log('User Profile (Dictionary):', userProfileDict);
         });
-      </script>
+    </script>
 </body>
 </html>
 
