@@ -1,4 +1,5 @@
 fastapi
 uvicorn
-boto3
+motor
 python-dotenv
+openai
