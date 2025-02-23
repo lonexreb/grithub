@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Training Plan Dashboard - Grithub</title>
   
   <!-- TailwindCSS via CDN -->
@@ -12,101 +12,673 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="bg-gray-50 font-roboto">
-  
-  <!-- Header (reused from index.html) -->
-  <header class="bg-blue-600 text-white p-4 flex flex-col items-center">
+  <!-- Header with Progress Bar -->
+  <header class="text-[#08253B] p-4 flex flex-col items-center">
     <div class="flex items-center space-x-3">
       <img src="images/logo.png" alt="Grithub Logo" class="w-10 h-10" />
       <h1 class="text-xl font-bold">Grithub: Your Sports Skill Development Journey</h1>
     </div>
     <nav class="mt-2">
       <ul class="flex space-x-4">
-        <li><a href="index.html" class="hover:underline">Home</a></li>
+        <li><a href="#" class="hover:underline">Home</a></li>
         <li><a href="#" class="hover:underline">About</a></li>
       </ul>
     </nav>
+
+    <!-- Gamified Progress Bar (max 10 levels) -->
+    <div class="mt-4 w-full max-w-xl px-4">
+      <div class="relative h-4 bg-gray-300 rounded-full">
+        <div id="progressFill" class="absolute top-0 left-0 h-4 bg-blue-600 rounded-full" style="width: 0%;"></div>
+      </div>
+      <div class="text-center text-sm mt-2" id="progressLabel">Level 0 / 10</div>
+    </div>
   </header>
   
-  <!-- Section: Training Plan Generation Form -->
+  <!-- Main Content: Cards Container -->
   <main class="max-w-7xl mx-auto px-4 py-8">
-    <section class="bg-white p-6 rounded shadow mb-8">
-      <h2 class="text-2xl font-bold mb-4">Generate Your Training Plan</h2>
-      <form id="training-plan-form" class="space-y-4">
-        <div>
-          <label for="bmi" class="block text-sm font-medium text-gray-700">Enter your BMI</label>
-          <input type="number" id="bmi" name="bmi" class="w-full border rounded p-2" required />
-        </div>
-        <div>
-          <label for="exercise" class="block text-sm font-medium text-gray-700">Daily Exercise (minutes)</label>
-          <input type="number" id="exercise" name="exercise" class="w-full border rounded p-2" required />
-        </div>
-        <div>
-          <label for="diet" class="block text-sm font-medium text-gray-700">Diet Quality (1-10)</label>
-          <input type="number" id="diet" name="diet" class="w-full border rounded p-2" required />
-        </div>
-        <button type="submit" class="w-full bg-blue-600 text-white rounded p-2 hover:bg-blue-700 transition">
-          Generate Plan
-        </button>
-      </form>
-      <!-- Output for Training Plan -->
-      <div id="training-plan-output" class="mt-6 p-4 bg-gray-100 rounded text-gray-800 whitespace-pre-wrap"></div>
-    </section>
-    
-    <!-- Existing Level Cards Section -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      
-      <!-- CARD 1: Level 01 -->
-      <div class="bg-[#D2ECFF] p-4 rounded-3xl shadow level-card" data-total-xp="170">
-        <h2 class="text-lg font-bold text-gray-800">Level 01</h2>
-        <p class="text-gray-500 text-sm mb-2">Introducing SwiftUI</p>
-        <hr class="mb-2"/>
-
-        <!-- Task List -->
-        <ul class="text-sm text-gray-600 space-y-1 tasks-list">
-          <li class="flex items-center">
-            <span class="task-star cursor-pointer text-gray-400 mr-2" data-xp="20">★</span>
-            <span>Punctuality: 20 XP</span>
-          </li>
-          <li class="flex items-center">
-            <span class="task-star cursor-pointer text-gray-400 mr-2" data-xp="30">★</span>
-            <span>Attendance: 30 XP</span>
-          </li>
-          <li class="flex items-center">
-            <span class="task-star cursor-pointer text-gray-400 mr-2" data-xp="50">★</span>
-            <span>Homework: 50 XP</span>
-          </li>
-          <li class="flex items-center">
-            <span class="task-star cursor-pointer text-gray-400 mr-2" data-xp="70">★</span>
-            <span>Challenge: 70 XP</span>
-          </li>
-        </ul>
-
-        <hr class="my-2"/>
-        <!-- Achieved XP Display -->
-        <p class="text-right text-gray-700 font-semibold achieved-xp">Achieved: 0 XP</p>
-
-        <!-- Progress Bar -->
-        <div class="relative w-full bg-gray-200 rounded-full h-2.5 mt-2">
-          <div class="progress-bar absolute bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
-        </div>
-
-        <p class="text-right text-gray-700 font-semibold mt-2">Total: 170 XP</p>
-
-        <!-- Video Upload Section -->
-        <hr class="my-2"/>
-        <div class="mt-4">
-          <label for="video-upload-level-1" class="block text-sm font-medium text-gray-700 mb-1">Upload Your Routine</label>
-          <input type="file" id="video-upload-level-1" accept="video/*" class="block w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 cursor-pointer focus:outline-none" />
-        </div>
-      </div>
-      
-      <!-- Repeat additional level cards as needed (CARD 2 to CARD 9) -->
-      <!-- For brevity, I'm showing just CARD 1 here. You can include the rest from your original file. -->
-      
-    </section>
+    <div id="card-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
   </main>
   
-  <!-- JavaScript for Backend Integration and Gamification -->
-  <script src="script.js"></script>
+  <!-- Modal Popup Container (hidden by default) -->
+  <div id="cardModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative overflow-auto max-h-full">
+      <!-- Close Button -->
+      <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-600 text-2xl font-bold">&times;</button>
+      <!-- Modal Content Will Be Injected Here -->
+      <div id="modalContent"></div>
+    </div>
+  </div>
+  
+  <!-- Script to dynamically generate cards from JSON and handle modal -->
+  <script>
+    // Sample JSON data (shortened for brevity)
+    const trainingPlan = {
+      "trainingPlanName": "20-Week Weight Loss Training Plan",
+      "cards": [
+        {
+          "cardNumber": 1,
+          "title": "Foundation Building",
+          "objectives": [
+            "Establish a workout routine",
+            "Build basic endurance",
+            "Improve mobility"
+          ],
+          "routine": [
+            {
+              "exercise": "Walking",
+              "sets": "1",
+              "reps": "30 minutes",
+              "rest": "N/A",
+              "description": "Brisk walking to increase heart rate and improve cardiovascular fitness."
+            },
+            {
+              "exercise": "Bodyweight Squats",
+              "sets": "3",
+              "reps": "10",
+              "rest": "60 seconds",
+              "description": "Focus on form and full range of motion."
+            },
+            {
+              "exercise": "Push-ups",
+              "sets": "3",
+              "reps": "5-10",
+              "rest": "60 seconds",
+              "description": "Knee push-ups if needed to build strength."
+            },
+            {
+              "exercise": "Plank",
+              "sets": "3",
+              "reps": "30 seconds",
+              "rest": "60 seconds",
+              "description": "Maintain a straight line from head to heels."
+            }
+          ],
+          "challenges": [
+            "Walk 5,000 steps daily",
+            "Perform all routine exercises every other day"
+          ]
+        },
+        {
+          "cardNumber": 2,
+          "title": "Increase Intensity",
+          "objectives": [
+            "Boost cardiovascular endurance",
+            "Increase workout intensity"
+          ],
+          "routine": [
+            {
+              "exercise": "Jogging",
+              "sets": "1",
+              "reps": "20 minutes",
+              "rest": "N/A",
+              "description": "Start with light jogging, incorporating intervals of brisk walking."
+            },
+            {
+              "exercise": "Lunges",
+              "sets": "3",
+              "reps": "10 per leg",
+              "rest": "60 seconds",
+              "description": "Focus on balance and control."
+            },
+            {
+              "exercise": "Incline Push-ups",
+              "sets": "3",
+              "reps": "8-12",
+              "rest": "60 seconds",
+              "description": "Use a bench or wall to modify intensity."
+            },
+            {
+              "exercise": "Russian Twists",
+              "sets": "3",
+              "reps": "15 per side",
+              "rest": "60 seconds",
+              "description": "Engage the core throughout the movement."
+            }
+          ],
+          "challenges": [
+            "Increase daily steps to 7,000",
+            "Add an extra set to one exercise each week"
+          ]
+        },
+        {
+          "cardNumber": 3,
+          "title": "Consistency and Control",
+          "objectives": [
+            "Enhance muscular endurance",
+            "Maintain routine consistency"
+          ],
+          "routine": [
+            {
+              "exercise": "Cycling",
+              "sets": "1",
+              "reps": "30 minutes",
+              "rest": "N/A",
+              "description": "Use a stationary bike or outdoor cycling, maintain a steady pace."
+            },
+            {
+              "exercise": "Step-ups",
+              "sets": "3",
+              "reps": "12 per leg",
+              "rest": "60 seconds",
+              "description": "Use a step or low bench, keep controlled movements."
+            },
+            {
+              "exercise": "Tricep Dips",
+              "sets": "3",
+              "reps": "8-12",
+              "rest": "60 seconds",
+              "description": "Use a chair or bench, ensure elbows point backward."
+            },
+            {
+              "exercise": "Mountain Climbers",
+              "sets": "3",
+              "reps": "30 seconds",
+              "rest": "60 seconds",
+              "description": "Maintain a fast pace while keeping the core engaged."
+            }
+          ],
+          "challenges": [
+            "Aim for 8,000 steps daily",
+            "Complete an active recovery session once a week"
+          ]
+        },
+        {
+          "cardNumber": 4,
+          "title": "Strength and Stability",
+          "objectives": [
+            "Build strength",
+            "Improve stability"
+          ],
+          "routine": [
+            {
+              "exercise": "Rowing",
+              "sets": "1",
+              "reps": "20 minutes",
+              "rest": "N/A",
+              "description": "Focus on maintaining a steady pace with proper form."
+            },
+            {
+              "exercise": "Deadlifts",
+              "sets": "3",
+              "reps": "10",
+              "rest": "60 seconds",
+              "description": "Use light weights, focus on proper technique."
+            },
+            {
+              "exercise": "Plank to Push-up",
+              "sets": "3",
+              "reps": "5-10",
+              "rest": "60 seconds",
+              "description": "Alternate between plank and push-up positions."
+            },
+            {
+              "exercise": "Bridge",
+              "sets": "3",
+              "reps": "15",
+              "rest": "60 seconds",
+              "description": "Engage glutes and core, keep hips level."
+            }
+          ],
+          "challenges": [
+            "Reach 9,000 steps daily",
+            "Hold a plank for 1 minute without rest"
+          ]
+        },
+        {
+          "cardNumber": 5,
+          "title": "Midpoint Reassessment",
+          "objectives": [
+            "Reassess fitness level",
+            "Adjust intensity as needed"
+          ],
+          "routine": [
+            {
+              "exercise": "Swimming",
+              "sets": "1",
+              "reps": "20-30 minutes",
+              "rest": "N/A",
+              "description": "Focus on endurance, alternate strokes for variety."
+            },
+            {
+              "exercise": "Goblet Squats",
+              "sets": "3",
+              "reps": "10-12",
+              "rest": "60 seconds",
+              "description": "Use a dumbbell or kettlebell, maintain form."
+            },
+            {
+              "exercise": "Bent-over Rows",
+              "sets": "3",
+              "reps": "10",
+              "rest": "60 seconds",
+              "description": "Use light weights, focus on squeezing shoulder blades."
+            },
+            {
+              "exercise": "Side Plank",
+              "sets": "3",
+              "reps": "30 seconds per side",
+              "rest": "60 seconds",
+              "description": "Maintain a straight line from head to feet."
+            }
+          ],
+          "challenges": [
+            "Walk 10,000 steps daily",
+            "Perform a full workout without prolonged rests"
+          ]
+        },
+        {
+          "cardNumber": 6,
+          "title": "Endurance Boost",
+          "objectives": [
+            "Increase cardiovascular endurance",
+            "Prepare for advanced workouts"
+          ],
+          "routine": [
+            {
+              "exercise": "Elliptical Trainer",
+              "sets": "1",
+              "reps": "30 minutes",
+              "rest": "N/A",
+              "description": "Maintain a steady pace, adjust resistance as needed."
+            },
+            {
+              "exercise": "Split Squats",
+              "sets": "3",
+              "reps": "10 per leg",
+              "rest": "60 seconds",
+              "description": "Focus on balance and controlled movement."
+            },
+            {
+              "exercise": "Chest Press",
+              "sets": "3",
+              "reps": "8-12",
+              "rest": "60 seconds",
+              "description": "Use machines or dumbbells, ensure a full range of motion."
+            },
+            {
+              "exercise": "Bicycle Crunches",
+              "sets": "3",
+              "reps": "15 per side",
+              "rest": "60 seconds",
+              "description": "Keep core engaged throughout the movement."
+            }
+          ],
+          "challenges": [
+            "Maintain 10,000 steps daily",
+            "Complete a 5-minute cooldown after each session"
+          ]
+        },
+        {
+          "cardNumber": 7,
+          "title": "Strength and Power",
+          "objectives": [
+            "Build muscle strength",
+            "Increase power"
+          ],
+          "routine": [
+            {
+              "exercise": "HIIT Circuit",
+              "sets": "1",
+              "reps": "20 minutes",
+              "rest": "N/A",
+              "description": "Alternate between high-intensity exercises and rest."
+            },
+            {
+              "exercise": "Overhead Press",
+              "sets": "3",
+              "reps": "8-10",
+              "rest": "60 seconds",
+              "description": "Use dumbbells or a barbell, keep core tight."
+            },
+            {
+              "exercise": "Pull-ups",
+              "sets": "3",
+              "reps": "As many as possible",
+              "rest": "60 seconds",
+              "description": "Use assistance if necessary to complete reps."
+            },
+            {
+              "exercise": "Leg Raises",
+              "sets": "3",
+              "reps": "10-15",
+              "rest": "60 seconds",
+              "description": "Control the movement and avoid swinging."
+            }
+          ],
+          "challenges": [
+            "Increase daily steps to 11,000",
+            "Incorporate a new exercise to your routine"
+          ]
+        },
+        {
+          "cardNumber": 8,
+          "title": "Advanced Conditioning",
+          "objectives": [
+            "Enhance overall conditioning",
+            "Prepare for high-intensity workouts"
+          ],
+          "routine": [
+            {
+              "exercise": "Stair Climbing",
+              "sets": "1",
+              "reps": "20 minutes",
+              "rest": "N/A",
+              "description": "Use a stair machine or actual stairs, maintain a steady pace."
+            },
+            {
+              "exercise": "Burpees",
+              "sets": "3",
+              "reps": "10",
+              "rest": "60 seconds",
+              "description": "Focus on explosive movement and form."
+            },
+            {
+              "exercise": "Dumbbell Snatches",
+              "sets": "3",
+              "reps": "8 per arm",
+              "rest": "60 seconds",
+              "description": "Use light weights, focus on speed and control."
+            },
+            {
+              "exercise": "Box Jumps",
+              "sets": "3",
+              "reps": "10",
+              "rest": "60 seconds",
+              "description": "Use a low box to start, focus on soft landings."
+            }
+          ],
+          "challenges": [
+            "Achieve 12,000 steps daily",
+            "Attempt a personal best in one exercise"
+          ]
+        },
+        {
+          "cardNumber": 9,
+          "title": "Peak Performance",
+          "objectives": [
+            "Maximize fitness levels",
+            "Prepare for maintenance phase"
+          ],
+          "routine": [
+            {
+              "exercise": "Outdoor Running",
+              "sets": "1",
+              "reps": "30 minutes",
+              "rest": "N/A",
+              "description": "Focus on pace and breathing consistency."
+            },
+            {
+              "exercise": "Kettlebell Swings",
+              "sets": "3",
+              "reps": "15",
+              "rest": "60 seconds",
+              "description": "Use proper form to protect the back."
+            },
+            {
+              "exercise": "TRX Rows",
+              "sets": "3",
+              "reps": "10-12",
+              "rest": "60 seconds",
+              "description": "Maintain a strong core throughout the movement."
+            },
+            {
+              "exercise": "Hanging Leg Raises",
+              "sets": "3",
+              "reps": "8-12",
+              "rest": "60 seconds",
+              "description": "Control the movement, avoid swinging."
+            }
+          ],
+          "challenges": [
+            "Maintain 12,000 steps daily",
+            "Incorporate an active recovery day each week"
+          ]
+        },
+        {
+          "cardNumber": 10,
+          "title": "Transition to Maintenance",
+          "objectives": [
+            "Transition to a sustainable routine",
+            "Focus on long-term fitness"
+          ],
+          "routine": [
+            {
+              "exercise": "Mix Cardio Workout",
+              "sets": "1",
+              "reps": "30 minutes",
+              "rest": "N/A",
+              "description": "Combine different cardio exercises for variety."
+            },
+            {
+              "exercise": "Plyometric Lunges",
+              "sets": "3",
+              "reps": "10 per leg",
+              "rest": "60 seconds",
+              "description": "Focus on explosive movement and soft landings."
+            },
+            {
+              "exercise": "Single-leg Deadlifts",
+              "sets": "3",
+              "reps": "10 per leg",
+              "rest": "60 seconds",
+              "description": "Focus on balance and control, use light weights."
+            },
+            {
+              "exercise": "Battle Ropes",
+              "sets": "3",
+              "reps": "30 seconds",
+              "rest": "60 seconds",
+              "description": "Maintain intensity and engage core throughout."
+            }
+          ],
+          "challenges": [
+            "Walk 13,000 steps daily",
+            "Reflect on progress and set new goals"
+          ]
+        }
+      ]
+    }
+
+    // Global progress tracking for header
+    let completedLevels = 0;
+    const totalLevels = 10;
+
+    function updateProgressBar() {
+      const progressFill = document.getElementById('progressFill');
+      const progressLabel = document.getElementById('progressLabel');
+      const percent = (completedLevels / totalLevels) * 100;
+      progressFill.style.width = percent + '%';
+      progressLabel.textContent = `Level ${completedLevels} / ${totalLevels}`;
+    }
+    
+    function incrementProgress() {
+      if (completedLevels < totalLevels) {
+        completedLevels++;
+        updateProgressBar();
+      }
+    }
+    
+    function decrementProgress() {
+      if (completedLevels > 0) {
+        completedLevels--;
+        updateProgressBar();
+      }
+    }
+    
+    // Function to create a card element from a card object
+    function createCard(card) {
+      const cardDiv = document.createElement('div');
+      cardDiv.className = "bg-[#D2ECFF] p-4 rounded-3xl shadow level-card relative";
+
+      // Medal Icon in top-right (grey by default)
+      const medalIcon = document.createElement('img');
+      medalIcon.src = "images/medal-grey.png"; // grey medal image
+      medalIcon.className = "w-8 h-8 absolute top-4 right-4 cursor-pointer";
+      cardDiv.appendChild(medalIcon);
+      
+      let completed = false;
+      medalIcon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!completed) {
+          completed = true;
+          medalIcon.src = "images/medal-gold.png"; // gold medal image
+          incrementProgress();
+        } else {
+          completed = false;
+          medalIcon.src = "images/medal-grey.png";
+          decrementProgress();
+        }
+      });
+
+      // Card Title with Level number
+      const titleEl = document.createElement('h2');
+      titleEl.className = "text-lg font-bold text-gray-800";
+      titleEl.textContent = "Level-" + card.cardNumber + ": " + card.title;
+      cardDiv.appendChild(titleEl);
+      
+      // Objectives
+      const objContainer = document.createElement('div');
+      objContainer.className = "mt-2";
+      card.objectives.forEach(obj => {
+        const span = document.createElement('span');
+        span.className = "inline-block bg-gray-200 text-gray-700 px-2 py-1 mr-2 mb-2 rounded";
+        span.textContent = obj;
+        objContainer.appendChild(span);
+      });
+      cardDiv.appendChild(objContainer);
+      
+      // Video Upload Section
+      const videoDiv = document.createElement('div');
+      videoDiv.className = "mt-4";
+      videoDiv.innerHTML = `
+        <hr class="my-2"/>
+        <label for="video-upload-level-${card.cardNumber}" class="block text-sm font-medium text-gray-700 mb-1">Upload Your Routine</label>
+        <input type="file" id="video-upload-level-${card.cardNumber}" accept="video/*" class="block w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 cursor-pointer focus:outline-none"/>
+      `;
+      cardDiv.appendChild(videoDiv);
+      
+      // Button to open modal with detailed info
+      const detailsButton = document.createElement('button');
+      detailsButton.className = "mt-4 w-full bg-[#00C3C8] text-white rounded p-2 hover:bg-green-700 transition";
+      detailsButton.textContent = "View 2-Week Routine Details";
+      detailsButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openModal(card);
+      });
+      cardDiv.appendChild(detailsButton);
+      
+      return cardDiv;
+    }
+    
+    // Open Modal with Detailed Info (including a 14-day calendar progress)
+    function openModal(card) {
+      const modalContent = document.getElementById('modalContent');
+      modalContent.innerHTML = '';
+
+      // Title
+      const modalTitle = document.createElement('h2');
+      modalTitle.className = "text-xl font-bold mb-4";
+      modalTitle.textContent = "Level-" + card.cardNumber + ": " + card.title;
+      modalContent.appendChild(modalTitle);
+      
+      // Objectives
+      const objectivesDiv = document.createElement('div');
+      objectivesDiv.className = "mb-4";
+      card.objectives.forEach(obj => {
+        const span = document.createElement('span');
+        span.className = "inline-block bg-gray-200 text-gray-700 px-2 py-1 mr-2 mb-2 rounded";
+        span.textContent = obj;
+        objectivesDiv.appendChild(span);
+      });
+      modalContent.appendChild(objectivesDiv);
+      
+      // Routine Details
+      const routineHeader = document.createElement('h3');
+      routineHeader.className = "font-semibold mb-2";
+      routineHeader.textContent = "Routine Details:";
+      modalContent.appendChild(routineHeader);
+      card.routine.forEach(item => {
+        const routineItem = document.createElement('p');
+        routineItem.className = "text-sm text-gray-600 mb-1";
+        routineItem.innerHTML = `<strong>${item.exercise}</strong> - Sets: ${item.sets}, Reps: ${item.reps}, Rest: ${item.rest}. ${item.description}`;
+        modalContent.appendChild(routineItem);
+      });
+      
+      // Challenges
+      const challengesHeader = document.createElement('h3');
+      challengesHeader.className = "font-semibold mt-4 mb-2";
+      challengesHeader.textContent = "Challenges:";
+      modalContent.appendChild(challengesHeader);
+      card.challenges.forEach(challenge => {
+        const challengeItem = document.createElement('p');
+        challengeItem.className = "text-sm text-gray-600 mb-1";
+        challengeItem.textContent = challenge;
+        modalContent.appendChild(challengeItem);
+      });
+      
+      // --- New: 14-Day Calendar Progress for this Card ---
+      const dailyProgressHeader = document.createElement('h3');
+      dailyProgressHeader.className = "font-semibold mt-4 mb-2";
+      dailyProgressHeader.textContent = "2-Week Daily Progress:";
+      modalContent.appendChild(dailyProgressHeader);
+      
+      // Container for a 14-cell calendar grid (7 columns x 2 rows)
+      const progressGrid = document.createElement('div');
+      progressGrid.className = "grid grid-cols-7 gap-2 mb-2";
+      
+      const totalDays = 14;
+      let completedDays = 0;
+      
+      // Create a label for this card's daily progress
+      const dailyProgressLabel = document.createElement('div');
+      dailyProgressLabel.className = "text-sm text-gray-700 mb-2";
+      dailyProgressLabel.textContent = `Progress: ${completedDays} / ${totalDays} days completed`;
+      
+      // Create 14 day cells
+      for (let i = 1; i <= totalDays; i++) {
+        const dayCell = document.createElement('div');
+        dayCell.className = "w-10 h-10 border border-gray-300 rounded flex items-center justify-center cursor-pointer";
+        dayCell.textContent = i; // Display day number
+        dayCell.dataset.completed = "false";
+        
+        dayCell.addEventListener('click', function(e) {
+          // Toggle the day's completion state
+          if (dayCell.dataset.completed === "false") {
+            dayCell.dataset.completed = "true";
+            dayCell.classList.add('bg-green-500', 'text-white');
+            completedDays++;
+          } else {
+            dayCell.dataset.completed = "false";
+            dayCell.classList.remove('bg-green-500', 'text-white');
+            completedDays--;
+          }
+          dailyProgressLabel.textContent = `Progress: ${completedDays} / ${totalDays} days completed`;
+        });
+        
+        progressGrid.appendChild(dayCell);
+      }
+      
+      modalContent.appendChild(progressGrid);
+      modalContent.appendChild(dailyProgressLabel);
+      
+      // Show the modal
+      document.getElementById('cardModal').classList.remove('hidden');
+    }
+    
+    // Close Modal
+    function closeModal() {
+      document.getElementById('cardModal').classList.add('hidden');
+    }
+    
+    // Populate the card container with cards from the JSON data
+    const cardContainer = document.getElementById('card-container');
+    trainingPlan.cards.forEach(card => {
+      const cardElement = createCard(card);
+      cardContainer.appendChild(cardElement);
+    });
+    
+    // Initialize header progress bar
+    updateProgressBar();
+  </script>
 </body>
 </html>

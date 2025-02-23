@@ -1,4 +1,9 @@
 fastapi
 uvicorn
-boto3
+pydantic
+pymongo
 python-dotenv
+openai
+passlib
+pyjwt
+pytest

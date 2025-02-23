@@ -1,21 +1,32 @@
-from pydantic import BaseModel, Field
-from typing import List
+# models/training_model.py
+from pydantic import BaseModel
+from typing import List, Optional
 
 class UserInput(BaseModel):
-    height: float   # in centimeters
-    weight: float   # in kilograms
+    height: float
+    weight: float
     age: int
     fitness_level: str
-    injury_history: str = Field("", description="Optional injury history")
-    target_goal: str = Field("", description="Optional target goal")
+    injury_history: Optional[str] = ""
+    target_goal: Optional[str] = ""
 
-class TrainingStep(BaseModel):
-    step_number: int
-    description: str
-    target_difficulty: str
-    recommended_duration: int  # in minutes
-    simulated_insight: str = Field("")
+class RoutineItem(BaseModel):
+    exercise: str
+    sets: Optional[int] = None
+    reps: Optional[int] = None
+    rest: Optional[str] = None
+    duration: Optional[str] = None
+    intensity: Optional[str] = None
+    description: Optional[str] = None
+
+class PlanBlock(BaseModel):
+    cardNumber: int
+    title: str
+    objectives: List[str]
+    routine: List[RoutineItem]
+    challenges: List[str]
 
 class TrainingPlan(BaseModel):
     user_id: str
-    plan: List[TrainingStep]
+    trainingPlanName: str
+    cards: List[PlanBlock]
