@@ -1,10 +1,9 @@
 /* style.css */
 html, body {
-    font-family: 'Roboto', sans-serif; /* Ensure you've imported this via a link or npm package if not using Tailwind's defaults */
-    background: url("images/sports.png") no-repeat center center fixed;
-    background-size: cover;
-    /* background-color: #f00; bright red */
-  }
-  
-  /* Additional custom styles can be added here */
-  
+  font-family: 'Roboto', sans-serif; /* Ensure you've imported this via a link or npm package if not using Tailwind's defaults */
+  background: url("images/sports.png") no-repeat center center fixed;
+  background-size: cover;
+  /* background-color: #f00; bright red */
+}
+
+/* Additional custom styles can be added here */

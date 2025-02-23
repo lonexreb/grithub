@@ -7,3 +7,6 @@ openai
 passlib
 pyjwt
 pytest
+pillow
+torch
+transformers

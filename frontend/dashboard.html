@@ -1,23 +1,37 @@
+<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Training Plan Dashboard - Grithub</title>
   
   <!-- TailwindCSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body class="bg-gray-50 font-roboto">
-  <!-- Header with Progress Bar -->
-  <header class="text-[#08253B] p-4 flex flex-col items-center">
+
+  <!-- HEADER with multiple buttons/icons -->
+  <header class="w-full relative text-[#08253B] p-4 flex flex-col items-center">
+
+    <!-- PROFILE BUTTON (top-left) -->
+    <button
+      id="profileBtn"
+      class="absolute top-4 left-4 flex items-center space-x-1 text-gray-600 hover:text-gray-800"
+    >
+      <img src="/images/user-icon.png" alt="Profile" class="w-12 h-12" />
+    </button>
+
+    <!-- LOGO + TITLE -->
     <div class="flex items-center space-x-3">
-      <img src="images/logo.png" alt="Grithub Logo" class="w-10 h-10" />
-      <h1 class="text-xl font-bold">Grithub: Your Sports Skill Development Journey</h1>
+      <img src="/images/logo.png" alt="Grithub Logo" class="w-10 h-10" />
+      <h1 class="text-xl font-bold">Grithub: Plan, Play, Prevail!</h1>
     </div>
+
+    <!-- Nav (Home/About example) -->
     <nav class="mt-2">
       <ul class="flex space-x-4">
         <li><a href="#" class="hover:underline">Home</a></li>
@@ -25,461 +39,110 @@
       </ul>
     </nav>
 
-    <!-- Gamified Progress Bar (max 10 levels) -->
+    <!-- GAMIFIED PROGRESS BAR (max 10 levels) -->
     <div class="mt-4 w-full max-w-xl px-4">
       <div class="relative h-4 bg-gray-300 rounded-full">
         <div id="progressFill" class="absolute top-0 left-0 h-4 bg-blue-600 rounded-full" style="width: 0%;"></div>
       </div>
       <div class="text-center text-sm mt-2" id="progressLabel">Level 0 / 10</div>
     </div>
+
+    <!-- FEEDBACK (WORKOUT DIARY) BUTTON (top-right, shifted left to make space for calendar button) -->
+    <button
+      id="feedbackBtn"
+      class="absolute top-4 right-36 flex items-center space-x-1 text-gray-600 hover:text-gray-800"
+    >
+      <img src="/images/feedback-icon.png" alt="Feedback Diary" class="w-11 h-11" />
+    </button>
+
+    <!-- VIDEO LIBRARY BUTTON (to the LEFT of the calendar icon) -->
+    <button
+      id="videoLibraryBtn"
+      class="absolute top-4 right-20 flex items-center space-x-1 text-gray-600 hover:text-gray-800"
+    >
+      <img src="/images/video-icon.png" alt="Video Library" class="w-11 h-11" />
+    </button>
+
+    <!-- CALENDAR BUTTON (top-right corner) -->
+    <button
+      id="calendarBtn"
+      class="absolute top-4 right-4 flex items-center space-x-1 text-gray-600 hover:text-gray-800"
+    >
+      <img src="/images/calendar-icon.png" alt="Calendar" class="w-11 h-11" />
+    </button>
+
   </header>
   
-  <!-- Main Content: Cards Container -->
+  <!-- MAIN CONTENT: Cards Container -->
   <main class="max-w-7xl mx-auto px-4 py-8">
     <div id="card-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
   </main>
   
-  <!-- Modal Popup Container (hidden by default) -->
+  <!-- CARD MODAL (HIDDEN BY DEFAULT) -->
   <div id="cardModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
     <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative overflow-auto max-h-full">
       <!-- Close Button -->
       <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-600 text-2xl font-bold">&times;</button>
-      <!-- Modal Content Will Be Injected Here -->
+      <!-- Modal Content Injected Here -->
       <div id="modalContent"></div>
     </div>
   </div>
-  
-  <!-- Script to dynamically generate cards from JSON and handle modal -->
-  <script>
-    // Sample JSON data (shortened for brevity)
-    const trainingPlan = {
-      "trainingPlanName": "20-Week Weight Loss Training Plan",
-      "cards": [
-        {
-          "cardNumber": 1,
-          "title": "Foundation Building",
-          "objectives": [
-            "Establish a workout routine",
-            "Build basic endurance",
-            "Improve mobility"
-          ],
-          "routine": [
-            {
-              "exercise": "Walking",
-              "sets": "1",
-              "reps": "30 minutes",
-              "rest": "N/A",
-              "description": "Brisk walking to increase heart rate and improve cardiovascular fitness."
-            },
-            {
-              "exercise": "Bodyweight Squats",
-              "sets": "3",
-              "reps": "10",
-              "rest": "60 seconds",
-              "description": "Focus on form and full range of motion."
-            },
-            {
-              "exercise": "Push-ups",
-              "sets": "3",
-              "reps": "5-10",
-              "rest": "60 seconds",
-              "description": "Knee push-ups if needed to build strength."
-            },
-            {
-              "exercise": "Plank",
-              "sets": "3",
-              "reps": "30 seconds",
-              "rest": "60 seconds",
-              "description": "Maintain a straight line from head to heels."
-            }
-          ],
-          "challenges": [
-            "Walk 5,000 steps daily",
-            "Perform all routine exercises every other day"
-          ]
-        },
-        {
-          "cardNumber": 2,
-          "title": "Increase Intensity",
-          "objectives": [
-            "Boost cardiovascular endurance",
-            "Increase workout intensity"
-          ],
-          "routine": [
-            {
-              "exercise": "Jogging",
-              "sets": "1",
-              "reps": "20 minutes",
-              "rest": "N/A",
-              "description": "Start with light jogging, incorporating intervals of brisk walking."
-            },
-            {
-              "exercise": "Lunges",
-              "sets": "3",
-              "reps": "10 per leg",
-              "rest": "60 seconds",
-              "description": "Focus on balance and control."
-            },
-            {
-              "exercise": "Incline Push-ups",
-              "sets": "3",
-              "reps": "8-12",
-              "rest": "60 seconds",
-              "description": "Use a bench or wall to modify intensity."
-            },
-            {
-              "exercise": "Russian Twists",
-              "sets": "3",
-              "reps": "15 per side",
-              "rest": "60 seconds",
-              "description": "Engage the core throughout the movement."
-            }
-          ],
-          "challenges": [
-            "Increase daily steps to 7,000",
-            "Add an extra set to one exercise each week"
-          ]
-        },
-        {
-          "cardNumber": 3,
-          "title": "Consistency and Control",
-          "objectives": [
-            "Enhance muscular endurance",
-            "Maintain routine consistency"
-          ],
-          "routine": [
-            {
-              "exercise": "Cycling",
-              "sets": "1",
-              "reps": "30 minutes",
-              "rest": "N/A",
-              "description": "Use a stationary bike or outdoor cycling, maintain a steady pace."
-            },
-            {
-              "exercise": "Step-ups",
-              "sets": "3",
-              "reps": "12 per leg",
-              "rest": "60 seconds",
-              "description": "Use a step or low bench, keep controlled movements."
-            },
-            {
-              "exercise": "Tricep Dips",
-              "sets": "3",
-              "reps": "8-12",
-              "rest": "60 seconds",
-              "description": "Use a chair or bench, ensure elbows point backward."
-            },
-            {
-              "exercise": "Mountain Climbers",
-              "sets": "3",
-              "reps": "30 seconds",
-              "rest": "60 seconds",
-              "description": "Maintain a fast pace while keeping the core engaged."
-            }
-          ],
-          "challenges": [
-            "Aim for 8,000 steps daily",
-            "Complete an active recovery session once a week"
-          ]
-        },
-        {
-          "cardNumber": 4,
-          "title": "Strength and Stability",
-          "objectives": [
-            "Build strength",
-            "Improve stability"
-          ],
-          "routine": [
-            {
-              "exercise": "Rowing",
-              "sets": "1",
-              "reps": "20 minutes",
-              "rest": "N/A",
-              "description": "Focus on maintaining a steady pace with proper form."
-            },
-            {
-              "exercise": "Deadlifts",
-              "sets": "3",
-              "reps": "10",
-              "rest": "60 seconds",
-              "description": "Use light weights, focus on proper technique."
-            },
-            {
-              "exercise": "Plank to Push-up",
-              "sets": "3",
-              "reps": "5-10",
-              "rest": "60 seconds",
-              "description": "Alternate between plank and push-up positions."
-            },
-            {
-              "exercise": "Bridge",
-              "sets": "3",
-              "reps": "15",
-              "rest": "60 seconds",
-              "description": "Engage glutes and core, keep hips level."
-            }
-          ],
-          "challenges": [
-            "Reach 9,000 steps daily",
-            "Hold a plank for 1 minute without rest"
-          ]
-        },
-        {
-          "cardNumber": 5,
-          "title": "Midpoint Reassessment",
-          "objectives": [
-            "Reassess fitness level",
-            "Adjust intensity as needed"
-          ],
-          "routine": [
-            {
-              "exercise": "Swimming",
-              "sets": "1",
-              "reps": "20-30 minutes",
-              "rest": "N/A",
-              "description": "Focus on endurance, alternate strokes for variety."
-            },
-            {
-              "exercise": "Goblet Squats",
-              "sets": "3",
-              "reps": "10-12",
-              "rest": "60 seconds",
-              "description": "Use a dumbbell or kettlebell, maintain form."
-            },
-            {
-              "exercise": "Bent-over Rows",
-              "sets": "3",
-              "reps": "10",
-              "rest": "60 seconds",
-              "description": "Use light weights, focus on squeezing shoulder blades."
-            },
-            {
-              "exercise": "Side Plank",
-              "sets": "3",
-              "reps": "30 seconds per side",
-              "rest": "60 seconds",
-              "description": "Maintain a straight line from head to feet."
-            }
-          ],
-          "challenges": [
-            "Walk 10,000 steps daily",
-            "Perform a full workout without prolonged rests"
-          ]
-        },
-        {
-          "cardNumber": 6,
-          "title": "Endurance Boost",
-          "objectives": [
-            "Increase cardiovascular endurance",
-            "Prepare for advanced workouts"
-          ],
-          "routine": [
-            {
-              "exercise": "Elliptical Trainer",
-              "sets": "1",
-              "reps": "30 minutes",
-              "rest": "N/A",
-              "description": "Maintain a steady pace, adjust resistance as needed."
-            },
-            {
-              "exercise": "Split Squats",
-              "sets": "3",
-              "reps": "10 per leg",
-              "rest": "60 seconds",
-              "description": "Focus on balance and controlled movement."
-            },
-            {
-              "exercise": "Chest Press",
-              "sets": "3",
-              "reps": "8-12",
-              "rest": "60 seconds",
-              "description": "Use machines or dumbbells, ensure a full range of motion."
-            },
-            {
-              "exercise": "Bicycle Crunches",
-              "sets": "3",
-              "reps": "15 per side",
-              "rest": "60 seconds",
-              "description": "Keep core engaged throughout the movement."
-            }
-          ],
-          "challenges": [
-            "Maintain 10,000 steps daily",
-            "Complete a 5-minute cooldown after each session"
-          ]
-        },
-        {
-          "cardNumber": 7,
-          "title": "Strength and Power",
-          "objectives": [
-            "Build muscle strength",
-            "Increase power"
-          ],
-          "routine": [
-            {
-              "exercise": "HIIT Circuit",
-              "sets": "1",
-              "reps": "20 minutes",
-              "rest": "N/A",
-              "description": "Alternate between high-intensity exercises and rest."
-            },
-            {
-              "exercise": "Overhead Press",
-              "sets": "3",
-              "reps": "8-10",
-              "rest": "60 seconds",
-              "description": "Use dumbbells or a barbell, keep core tight."
-            },
-            {
-              "exercise": "Pull-ups",
-              "sets": "3",
-              "reps": "As many as possible",
-              "rest": "60 seconds",
-              "description": "Use assistance if necessary to complete reps."
-            },
-            {
-              "exercise": "Leg Raises",
-              "sets": "3",
-              "reps": "10-15",
-              "rest": "60 seconds",
-              "description": "Control the movement and avoid swinging."
-            }
-          ],
-          "challenges": [
-            "Increase daily steps to 11,000",
-            "Incorporate a new exercise to your routine"
-          ]
-        },
-        {
-          "cardNumber": 8,
-          "title": "Advanced Conditioning",
-          "objectives": [
-            "Enhance overall conditioning",
-            "Prepare for high-intensity workouts"
-          ],
-          "routine": [
-            {
-              "exercise": "Stair Climbing",
-              "sets": "1",
-              "reps": "20 minutes",
-              "rest": "N/A",
-              "description": "Use a stair machine or actual stairs, maintain a steady pace."
-            },
-            {
-              "exercise": "Burpees",
-              "sets": "3",
-              "reps": "10",
-              "rest": "60 seconds",
-              "description": "Focus on explosive movement and form."
-            },
-            {
-              "exercise": "Dumbbell Snatches",
-              "sets": "3",
-              "reps": "8 per arm",
-              "rest": "60 seconds",
-              "description": "Use light weights, focus on speed and control."
-            },
-            {
-              "exercise": "Box Jumps",
-              "sets": "3",
-              "reps": "10",
-              "rest": "60 seconds",
-              "description": "Use a low box to start, focus on soft landings."
-            }
-          ],
-          "challenges": [
-            "Achieve 12,000 steps daily",
-            "Attempt a personal best in one exercise"
-          ]
-        },
-        {
-          "cardNumber": 9,
-          "title": "Peak Performance",
-          "objectives": [
-            "Maximize fitness levels",
-            "Prepare for maintenance phase"
-          ],
-          "routine": [
-            {
-              "exercise": "Outdoor Running",
-              "sets": "1",
-              "reps": "30 minutes",
-              "rest": "N/A",
-              "description": "Focus on pace and breathing consistency."
-            },
-            {
-              "exercise": "Kettlebell Swings",
-              "sets": "3",
-              "reps": "15",
-              "rest": "60 seconds",
-              "description": "Use proper form to protect the back."
-            },
-            {
-              "exercise": "TRX Rows",
-              "sets": "3",
-              "reps": "10-12",
-              "rest": "60 seconds",
-              "description": "Maintain a strong core throughout the movement."
-            },
-            {
-              "exercise": "Hanging Leg Raises",
-              "sets": "3",
-              "reps": "8-12",
-              "rest": "60 seconds",
-              "description": "Control the movement, avoid swinging."
-            }
-          ],
-          "challenges": [
-            "Maintain 12,000 steps daily",
-            "Incorporate an active recovery day each week"
-          ]
-        },
-        {
-          "cardNumber": 10,
-          "title": "Transition to Maintenance",
-          "objectives": [
-            "Transition to a sustainable routine",
-            "Focus on long-term fitness"
-          ],
-          "routine": [
-            {
-              "exercise": "Mix Cardio Workout",
-              "sets": "1",
-              "reps": "30 minutes",
-              "rest": "N/A",
-              "description": "Combine different cardio exercises for variety."
-            },
-            {
-              "exercise": "Plyometric Lunges",
-              "sets": "3",
-              "reps": "10 per leg",
-              "rest": "60 seconds",
-              "description": "Focus on explosive movement and soft landings."
-            },
-            {
-              "exercise": "Single-leg Deadlifts",
-              "sets": "3",
-              "reps": "10 per leg",
-              "rest": "60 seconds",
-              "description": "Focus on balance and control, use light weights."
-            },
-            {
-              "exercise": "Battle Ropes",
-              "sets": "3",
-              "reps": "30 seconds",
-              "rest": "60 seconds",
-              "description": "Maintain intensity and engage core throughout."
-            }
-          ],
-          "challenges": [
-            "Walk 13,000 steps daily",
-            "Reflect on progress and set new goals"
-          ]
-        }
-      ]
-    }
 
-    // Global progress tracking for header
+  <!-- CALENDAR MODAL (HIDDEN BY DEFAULT) -->
+  <div id="calendarModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-3xl w-full relative overflow-auto max-h-full">
+      <button id="closeCalendarBtn" class="absolute top-2 right-2 text-gray-600 text-2xl font-bold">&times;</button>
+      <div id="calendarContent"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL (HIDDEN BY DEFAULT) -->
+  <div id="profileModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-4xl w-full relative overflow-auto max-h-full">
+      <button id="closeProfileBtn" class="absolute top-2 right-2 text-gray-600 text-2xl font-bold">&times;</button>
+      <div id="profileContent"></div>
+    </div>
+  </div>
+
+  <!-- VIDEO LIBRARY MODAL (HIDDEN BY DEFAULT) -->
+  <div id="videoLibraryModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-xl w-full relative overflow-auto max-h-full">
+      <button id="closeVideoLibraryBtn" class="absolute top-2 right-2 text-gray-600 text-2xl font-bold">&times;</button>
+      <div id="videoLibraryContent"></div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK (DIARY) MODAL (HIDDEN BY DEFAULT) -->
+  <div id="feedbackModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full relative overflow-auto max-h-full">
+      <button id="closeFeedbackBtn" class="absolute top-2 right-2 text-gray-600 text-2xl font-bold">&times;</button>
+      <div id="feedbackContent">
+        <h2 class="text-xl font-bold mb-4">Workout Log Book</h2>
+        <!-- Diary Entries List -->
+        <div id="diaryEntries" class="mb-4"></div>
+        <!-- New Entry Form -->
+        <div class="mt-4">
+          <textarea
+            id="newEntryText"
+            rows="3"
+            class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:border-blue-500"
+            placeholder="How did you feel during today's workout?"
+          ></textarea>
+          <button
+            id="addEntryBtn"
+            class="mt-2 w-full bg-blue-600 text-white rounded p-2 hover:bg-blue-700 transition"
+          >
+            Add Entry
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    //////////////////
+    // PROGRESS BAR //
+    //////////////////
     let completedLevels = 0;
     const totalLevels = 10;
 
@@ -490,52 +153,75 @@
       progressFill.style.width = percent + '%';
       progressLabel.textContent = `Level ${completedLevels} / ${totalLevels}`;
     }
-    
+
     function incrementProgress() {
       if (completedLevels < totalLevels) {
         completedLevels++;
         updateProgressBar();
       }
     }
-    
+
     function decrementProgress() {
       if (completedLevels > 0) {
         completedLevels--;
         updateProgressBar();
       }
     }
-    
-    // Function to create a card element from a card object
+
+    // Retrieve plan from localStorage
+    const storedPlan = localStorage.getItem("trainingPlan");
+    let trainingPlan = null;
+    if (!storedPlan) {
+      // If no plan in localStorage, redirect or alert
+      alert("No training plan found. Please generate one first.");
+      window.location.href = "/static/index.html"; // or a custom route
+    } else {
+      trainingPlan = JSON.parse(storedPlan);
+      console.log("Loaded plan:", trainingPlan);
+    }
+
+    // If we have a plan, populate cards
+    if (trainingPlan && trainingPlan.cards) {
+      const cardContainer = document.getElementById('card-container');
+      trainingPlan.cards.forEach(card => {
+        const cardElement = createCard(card);
+        cardContainer.appendChild(cardElement);
+      });
+    }
+
+    //////////////////
+    // CREATE CARD  //
+    //////////////////
     function createCard(card) {
       const cardDiv = document.createElement('div');
       cardDiv.className = "bg-[#D2ECFF] p-4 rounded-3xl shadow level-card relative";
 
-      // Medal Icon in top-right (grey by default)
+      // Medal Icon in top-right
       const medalIcon = document.createElement('img');
-      medalIcon.src = "images/medal-grey.png"; // grey medal image
+      medalIcon.src = "/images/medal-grey.png";
       medalIcon.className = "w-8 h-8 absolute top-4 right-4 cursor-pointer";
       cardDiv.appendChild(medalIcon);
-      
+
       let completed = false;
       medalIcon.addEventListener('click', function(e) {
         e.stopPropagation();
         if (!completed) {
           completed = true;
-          medalIcon.src = "images/medal-gold.png"; // gold medal image
+          medalIcon.src = "/images/medal-gold.png";
           incrementProgress();
         } else {
           completed = false;
-          medalIcon.src = "images/medal-grey.png";
+          medalIcon.src = "/images/medal-grey.png";
           decrementProgress();
         }
       });
 
-      // Card Title with Level number
+      // Card Title
       const titleEl = document.createElement('h2');
       titleEl.className = "text-lg font-bold text-gray-800";
       titleEl.textContent = "Level-" + card.cardNumber + ": " + card.title;
       cardDiv.appendChild(titleEl);
-      
+
       // Objectives
       const objContainer = document.createElement('div');
       objContainer.className = "mt-2";
@@ -546,18 +232,8 @@
         objContainer.appendChild(span);
       });
       cardDiv.appendChild(objContainer);
-      
-      // Video Upload Section
-      const videoDiv = document.createElement('div');
-      videoDiv.className = "mt-4";
-      videoDiv.innerHTML = `
-        <hr class="my-2"/>
-        <label for="video-upload-level-${card.cardNumber}" class="block text-sm font-medium text-gray-700 mb-1">Upload Your Routine</label>
-        <input type="file" id="video-upload-level-${card.cardNumber}" accept="video/*" class="block w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 cursor-pointer focus:outline-none"/>
-      `;
-      cardDiv.appendChild(videoDiv);
-      
-      // Button to open modal with detailed info
+
+      // "View Routine Details" Button
       const detailsButton = document.createElement('button');
       detailsButton.className = "mt-4 w-full bg-[#00C3C8] text-white rounded p-2 hover:bg-green-700 transition";
       detailsButton.textContent = "View 2-Week Routine Details";
@@ -566,11 +242,11 @@
         openModal(card);
       });
       cardDiv.appendChild(detailsButton);
-      
+
       return cardDiv;
     }
-    
-    // Open Modal with Detailed Info (including a 14-day calendar progress)
+
+    // MODAL: show 14-day details
     function openModal(card) {
       const modalContent = document.getElementById('modalContent');
       modalContent.innerHTML = '';
@@ -580,7 +256,7 @@
       modalTitle.className = "text-xl font-bold mb-4";
       modalTitle.textContent = "Level-" + card.cardNumber + ": " + card.title;
       modalContent.appendChild(modalTitle);
-      
+
       // Objectives
       const objectivesDiv = document.createElement('div');
       objectivesDiv.className = "mb-4";
@@ -591,58 +267,56 @@
         objectivesDiv.appendChild(span);
       });
       modalContent.appendChild(objectivesDiv);
-      
-      // Routine Details
+
+      // Routine
       const routineHeader = document.createElement('h3');
       routineHeader.className = "font-semibold mb-2";
       routineHeader.textContent = "Routine Details:";
       modalContent.appendChild(routineHeader);
+
       card.routine.forEach(item => {
         const routineItem = document.createElement('p');
         routineItem.className = "text-sm text-gray-600 mb-1";
         routineItem.innerHTML = `<strong>${item.exercise}</strong> - Sets: ${item.sets}, Reps: ${item.reps}, Rest: ${item.rest}. ${item.description}`;
         modalContent.appendChild(routineItem);
       });
-      
+
       // Challenges
       const challengesHeader = document.createElement('h3');
       challengesHeader.className = "font-semibold mt-4 mb-2";
       challengesHeader.textContent = "Challenges:";
       modalContent.appendChild(challengesHeader);
+
       card.challenges.forEach(challenge => {
         const challengeItem = document.createElement('p');
         challengeItem.className = "text-sm text-gray-600 mb-1";
         challengeItem.textContent = challenge;
         modalContent.appendChild(challengeItem);
       });
-      
-      // --- New: 14-Day Calendar Progress for this Card ---
+
+      // 14-Day Calendar
       const dailyProgressHeader = document.createElement('h3');
       dailyProgressHeader.className = "font-semibold mt-4 mb-2";
       dailyProgressHeader.textContent = "2-Week Daily Progress:";
       modalContent.appendChild(dailyProgressHeader);
-      
-      // Container for a 14-cell calendar grid (7 columns x 2 rows)
+
       const progressGrid = document.createElement('div');
       progressGrid.className = "grid grid-cols-7 gap-2 mb-2";
-      
+
       const totalDays = 14;
       let completedDays = 0;
-      
-      // Create a label for this card's daily progress
+
       const dailyProgressLabel = document.createElement('div');
       dailyProgressLabel.className = "text-sm text-gray-700 mb-2";
       dailyProgressLabel.textContent = `Progress: ${completedDays} / ${totalDays} days completed`;
-      
-      // Create 14 day cells
+
       for (let i = 1; i <= totalDays; i++) {
         const dayCell = document.createElement('div');
         dayCell.className = "w-10 h-10 border border-gray-300 rounded flex items-center justify-center cursor-pointer";
-        dayCell.textContent = i; // Display day number
+        dayCell.textContent = i;
         dayCell.dataset.completed = "false";
-        
+
         dayCell.addEventListener('click', function(e) {
-          // Toggle the day's completion state
           if (dayCell.dataset.completed === "false") {
             dayCell.dataset.completed = "true";
             dayCell.classList.add('bg-green-500', 'text-white');
@@ -654,31 +328,455 @@
           }
           dailyProgressLabel.textContent = `Progress: ${completedDays} / ${totalDays} days completed`;
         });
-        
+
         progressGrid.appendChild(dayCell);
       }
-      
+
       modalContent.appendChild(progressGrid);
       modalContent.appendChild(dailyProgressLabel);
-      
-      // Show the modal
+
       document.getElementById('cardModal').classList.remove('hidden');
     }
-    
-    // Close Modal
+
     function closeModal() {
       document.getElementById('cardModal').classList.add('hidden');
     }
-    
-    // Populate the card container with cards from the JSON data
-    const cardContainer = document.getElementById('card-container');
-    trainingPlan.cards.forEach(card => {
-      const cardElement = createCard(card);
-      cardContainer.appendChild(cardElement);
-    });
-    
-    // Initialize header progress bar
+
+    // Initialize progress bar
     updateProgressBar();
+
+    ///////////////////////////////////////////////////////////////////
+    // CALENDAR MODAL
+    ///////////////////////////////////////////////////////////////////
+    const calendarBtn = document.getElementById('calendarBtn');
+    const calendarModal = document.getElementById('calendarModal');
+    const closeCalendarBtn = document.getElementById('closeCalendarBtn');
+    const calendarContent = document.getElementById('calendarContent');
+
+    calendarBtn.addEventListener('click', () => {
+      generateCalendar();
+      calendarModal.classList.remove('hidden');
+    });
+
+    closeCalendarBtn.addEventListener('click', () => {
+      calendarModal.classList.add('hidden');
+    });
+
+    // A helper to see which level covers a given day offset
+    function getLevelForDayOffset(dayOffset) {
+      const levelIndex = Math.floor(dayOffset / 14); // each level is 14 days
+      const levelNumber = levelIndex + 1;
+      if (levelNumber > 10) return 0;
+      return levelNumber;
+    }
+
+    function generateCalendar() {
+      calendarContent.innerHTML = '';
+      const startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      const monthsToShow = 6;
+      for (let m = 0; m < monthsToShow; m++) {
+        const monthStart = new Date(startDate.getFullYear(), startDate.getMonth() + m, 1);
+        const monthName = monthStart.toLocaleString('default', { month: 'long' });
+        const year = monthStart.getFullYear();
+
+        const monthContainer = document.createElement('div');
+        monthContainer.className = "mb-6";
+
+        const monthTitle = document.createElement('h2');
+        monthTitle.className = "text-lg font-semibold mb-2";
+        monthTitle.textContent = `${monthName} ${year}`;
+        monthContainer.appendChild(monthTitle);
+
+        const daysGrid = document.createElement('div');
+        daysGrid.className = "grid grid-cols-7 gap-2 text-center";
+
+        const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+        dayNames.forEach(d => {
+          const dayHeader = document.createElement('div');
+          dayHeader.className = "font-bold";
+          dayHeader.textContent = d;
+          daysGrid.appendChild(dayHeader);
+        });
+
+        const daysInMonth = new Date(year, monthStart.getMonth()+1, 0).getDate();
+        const offset = monthStart.getDay(); // 0=Sun,1=Mon...
+
+        for (let i = 0; i < offset; i++) {
+          const emptyCell = document.createElement('div');
+          daysGrid.appendChild(emptyCell);
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dayCell = document.createElement('div');
+          dayCell.className = "relative w-8 h-8 mx-auto flex items-center justify-center";
+          dayCell.textContent = d;
+
+          const dayDate = new Date(year, monthStart.getMonth(), d);
+          const dayOffset = Math.floor((dayDate - startDate)/(1000*60*60*24));
+          const level = getLevelForDayOffset(dayOffset);
+          if (level >= 1 && level <= 10) {
+            dayCell.classList.add("border-2","rounded-full");
+            const colorArray = [
+              "#E95793","#03C988","#940B92","#8B9A46","#F39F5A",
+              "#AE445A","#CD1818","#451952","#4477CE","#005B41"
+            ];
+            dayCell.style.borderColor = colorArray[level-1];
+          }
+
+          daysGrid.appendChild(dayCell);
+        }
+
+        monthContainer.appendChild(daysGrid);
+        calendarContent.appendChild(monthContainer);
+      }
+    }
+
+    ///////////////////////////////////////////////////////////////////
+    // PROFILE MODAL
+    ///////////////////////////////////////////////////////////////////
+    const profileBtn = document.getElementById('profileBtn');
+    const profileModal = document.getElementById('profileModal');
+    const closeProfileBtn = document.getElementById('closeProfileBtn');
+    const profileContent = document.getElementById('profileContent');
+
+    profileBtn.addEventListener('click', () => {
+      openProfile();
+      profileModal.classList.remove('hidden');
+    });
+    closeProfileBtn.addEventListener('click', () => {
+      profileModal.classList.add('hidden');
+    });
+
+    function getFitnessLevelLabel(levelCount) {
+      if (levelCount <= 3) return "Beginner";
+      if (levelCount <= 6) return "Intermediate";
+      if (levelCount <= 9) return "Advanced";
+      return "Expert";
+    }
+    function getUserBMI() {
+      // Example placeholder
+      return 24.5;
+    }
+    function getTrainingsForToday() {
+      // Example placeholder
+      return ["30 mins Jogging","3 sets of 10 Push-ups","2 sets of 15 Squats"];
+    }
+
+    function openProfile() {
+      profileContent.innerHTML = "";
+
+      const profilePhoto = document.createElement('img');
+      profilePhoto.src = "/images/user-icon.png";
+      profilePhoto.className = "w-20 h-20 rounded-full mx-auto mb-4";
+      profileContent.appendChild(profilePhoto);
+
+      const completedLevelsEl = document.createElement('p');
+      completedLevelsEl.className = "text-sm text-gray-700 mb-2";
+      completedLevelsEl.textContent = `Completed Levels: ${completedLevels}`;
+      profileContent.appendChild(completedLevelsEl);
+
+      const trainingHeader = document.createElement('h3');
+      trainingHeader.className = "font-semibold mt-2";
+      trainingHeader.textContent = "Today's Trainings:";
+      profileContent.appendChild(trainingHeader);
+
+      const trainingsList = document.createElement('ul');
+      trainingsList.className = "list-disc list-inside text-sm text-gray-700 mb-2";
+      getTrainingsForToday().forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = t;
+        trainingsList.appendChild(li);
+      });
+      profileContent.appendChild(trainingsList);
+
+      const bmiValue = getUserBMI();
+      const bmiEl = document.createElement('p');
+      bmiEl.className = "text-sm text-gray-700 mb-2";
+      bmiEl.textContent = `BMI: ${bmiValue.toFixed(1)}`;
+      profileContent.appendChild(bmiEl);
+
+      const userFitnessLevel = getFitnessLevelLabel(completedLevels);
+      const fitnessEl = document.createElement('p');
+      fitnessEl.className = "text-sm text-gray-700 mb-2";
+      fitnessEl.textContent = `Current Fitness Level: ${userFitnessLevel}`;
+      profileContent.appendChild(fitnessEl);
+
+      const messageEl = document.createElement('p');
+      messageEl.className = "text-sm text-gray-700 mt-4 font-semibold";
+      messageEl.textContent = "You are making good progress!!";
+      profileContent.appendChild(messageEl);
+
+      // "View Analytics" Button
+      const analyticsBtn = document.createElement('button');
+      analyticsBtn.className = "mt-4 w-full bg-purple-600 text-white rounded p-2 hover:bg-purple-700 transition";
+      analyticsBtn.textContent = "View Analytics";
+      analyticsBtn.addEventListener('click', () => {
+        const analyticsContainer = document.getElementById('analyticsContainer');
+        analyticsContainer.classList.toggle('hidden');
+      });
+      profileContent.appendChild(analyticsBtn);
+
+      // Analytics Container
+      let analyticsContainer = document.getElementById('analyticsContainer');
+      if (!analyticsContainer) {
+        analyticsContainer = document.createElement('div');
+        analyticsContainer.id = "analyticsContainer";
+        analyticsContainer.className = "hidden mt-4";
+        profileContent.appendChild(analyticsContainer);
+      }
+      analyticsContainer.innerHTML = '';
+
+      // Example MongoDB chart iframes
+      const chartUrls = [
+        "https://charts.mongodb.com/charts-seeker-launch-wkuxrti/embed/charts?id=74cb72db-c4fd-4914-9083-7733d69421ab&maxDataAge=3600&theme=light&autoRefresh=true",
+        "https://charts.mongodb.com/charts-seeker-launch-wkuxrti/embed/charts?id=fe4c993e-1f96-4418-a0f8-d01571a811e4&maxDataAge=3600&theme=light&autoRefresh=true",
+        "https://charts.mongodb.com/charts-seeker-launch-wkuxrti/embed/charts?id=be72312b-346e-40cd-9a76-f1390b45bb1c&maxDataAge=3600&theme=light&autoRefresh=true",
+        "https://charts.mongodb.com/charts-seeker-launch-wkuxrti/embed/charts?id=ffb72955-1594-4235-a63d-817b8173c827&maxDataAge=3600&theme=light&autoRefresh=true"
+      ];
+      chartUrls.forEach(url => {
+        const iframe = document.createElement('iframe');
+        iframe.style.background = "#FFFFFF";
+        iframe.style.border = "none";
+        iframe.style.borderRadius = "2px";
+        iframe.style.boxShadow = "0 2px 10px 0 rgba(70, 76, 79, .2)";
+        iframe.width = "640";
+        iframe.height = "480";
+        iframe.src = url;
+        analyticsContainer.appendChild(iframe);
+      });
+    }
+
+    ///////////////////////////////////////////////////////////////////
+    // VIDEO LIBRARY MODAL
+    ///////////////////////////////////////////////////////////////////
+    const videoLibraryBtn = document.getElementById('videoLibraryBtn');
+    const videoLibraryModal = document.getElementById('videoLibraryModal');
+    const closeVideoLibraryBtn = document.getElementById('closeVideoLibraryBtn');
+    const videoLibraryContent = document.getElementById('videoLibraryContent');
+
+    videoLibraryBtn.addEventListener('click', () => {
+      openVideoLibrary();
+      videoLibraryModal.classList.remove('hidden');
+    });
+    closeVideoLibraryBtn.addEventListener('click', () => {
+      videoLibraryModal.classList.add('hidden');
+    });
+
+    // Mock data
+    let myVideos = [
+      { title: "My Warmup Routine", fileName: "warmup_routine.mp4", dateUploaded: "2025-02-15" },
+      { title: "My Push-up Progress", fileName: "pushup_progress.mp4", dateUploaded: "2025-02-18" }
+    ];
+
+    let tutorialVideos = [
+      {
+        title: "Full Body Workout for Beginners",
+        youtubeUrl: "https://www.youtube.com/watch?v=cbKkB3POqaY",
+        thumbnail: "/images/full-body-workout.png"
+      },
+      {
+        title: "Yoga for Flexibility",
+        youtubeUrl: "https://www.youtube.com/watch?v=EvMTrP8eRvM",
+        thumbnail: "/images/yoga-for-flexibility.png"
+      }
+    ];
+
+    function openVideoLibrary() {
+      videoLibraryContent.innerHTML = '';
+      const tabsContainer = document.createElement('div');
+      tabsContainer.className = "flex space-x-4 mb-4";
+
+      const myVideosTab = document.createElement('button');
+      myVideosTab.className = "bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600";
+      myVideosTab.textContent = "My Videos";
+      myVideosTab.addEventListener('click', () => showMyVideos());
+
+      const tutorialsTab = document.createElement('button');
+      tutorialsTab.className = "bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600";
+      tutorialsTab.textContent = "Training Tutorials";
+      tutorialsTab.addEventListener('click', () => showTutorialVideos());
+
+      tabsContainer.appendChild(myVideosTab);
+      tabsContainer.appendChild(tutorialsTab);
+      videoLibraryContent.appendChild(tabsContainer);
+
+      const tabContent = document.createElement('div');
+      tabContent.id = "videoTabContent";
+      videoLibraryContent.appendChild(tabContent);
+
+      showMyVideos();
+    }
+
+    function showMyVideos() {
+      const tabContent = document.getElementById('videoTabContent');
+      tabContent.innerHTML = '';
+
+      // Upload Section
+      const uploadContainer = document.createElement('div');
+      uploadContainer.className = "mb-4 p-4 border rounded";
+
+      const uploadLabel = document.createElement('label');
+      uploadLabel.className = "block text-sm font-medium text-gray-700 mb-1";
+      uploadLabel.textContent = "Upload a Video/Image (MP4, JPEG, PNG)";
+      uploadContainer.appendChild(uploadLabel);
+
+      const fileInput = document.createElement('input');
+      fileInput.type = "file";
+      fileInput.accept = "video/mp4,image/jpeg,image/png";
+      fileInput.className = "block w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 cursor-pointer focus:outline-none mb-2";
+      uploadContainer.appendChild(fileInput);
+
+      const uploadButton = document.createElement('button');
+      uploadButton.className = "w-full bg-blue-600 text-white rounded p-2 hover:bg-blue-700 transition";
+      uploadButton.textContent = "Upload";
+      uploadButton.addEventListener('click', function() {
+        if (fileInput.files.length === 0) {
+          alert("Please choose a file to upload.");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        fetch("/api/uploadVideo", {
+          method: "POST",
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) throw new Error("Upload failed");
+          return response.json();
+        })
+        .then(data => {
+          alert("Upload successful!");
+          // mock push to array
+          myVideos.push({
+            title: fileInput.files[0].name,
+            fileName: data.fileName,
+            dateUploaded: new Date().toLocaleDateString()
+          });
+          showMyVideos();
+        })
+        .catch(error => {
+          console.error(error);
+          alert("Error uploading file.");
+        });
+      });
+      uploadContainer.appendChild(uploadButton);
+      tabContent.appendChild(uploadContainer);
+
+      if (myVideos.length === 0) {
+        tabContent.innerHTML += '<p class="text-sm text-gray-700">No videos uploaded yet.</p>';
+        return;
+      }
+
+      myVideos.forEach(video => {
+        const videoItem = document.createElement('div');
+        videoItem.className = "mb-4 border-b pb-2";
+
+        const titleEl = document.createElement('h3');
+        titleEl.className = "font-semibold text-gray-800";
+        titleEl.textContent = video.title;
+        videoItem.appendChild(titleEl);
+
+        const metaEl = document.createElement('p');
+        metaEl.className = "text-sm text-gray-600";
+        metaEl.textContent = `Uploaded on: ${video.dateUploaded}`;
+        videoItem.appendChild(metaEl);
+
+        const playBtn = document.createElement('a');
+        playBtn.className = "inline-block mt-2 text-blue-600 hover:underline text-sm";
+        playBtn.textContent = "Play Video";
+        playBtn.href = `/uploads/${video.fileName}`;
+        playBtn.target = "_blank";
+        videoItem.appendChild(playBtn);
+
+        tabContent.appendChild(videoItem);
+      });
+    }
+
+    function showTutorialVideos() {
+      const tabContent = document.getElementById('videoTabContent');
+      tabContent.innerHTML = '';
+
+      if (tutorialVideos.length === 0) {
+        tabContent.innerHTML = '<p class="text-sm text-gray-700">No tutorial videos available.</p>';
+        return;
+      }
+
+      tutorialVideos.forEach(tutorial => {
+        const tutorialItem = document.createElement('div');
+        tutorialItem.className = "mb-4 border-b pb-2";
+
+        const thumbImg = document.createElement('img');
+        thumbImg.src = tutorial.thumbnail;
+        thumbImg.alt = tutorial.title;
+        thumbImg.className = "w-40 h-auto mb-2";
+        tutorialItem.appendChild(thumbImg);
+
+        const titleEl = document.createElement('h3');
+        titleEl.className = "font-semibold text-gray-800";
+        titleEl.textContent = tutorial.title;
+        tutorialItem.appendChild(titleEl);
+
+        const linkEl = document.createElement('a');
+        linkEl.className = "inline-block mt-2 text-blue-600 hover:underline text-sm";
+        linkEl.textContent = "Watch on YouTube";
+        linkEl.href = tutorial.youtubeUrl;
+        linkEl.target = "_blank";
+        tutorialItem.appendChild(linkEl);
+
+        tabContent.appendChild(tutorialItem);
+      });
+    }
+
+    ///////////////////////////////////////////////////////////////////
+    // FEEDBACK (WORKOUT DIARY) MODAL
+    ///////////////////////////////////////////////////////////////////
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    const feedbackModal = document.getElementById('feedbackModal');
+    const closeFeedbackBtn = document.getElementById('closeFeedbackBtn');
+    const diaryEntries = document.getElementById('diaryEntries');
+    const addEntryBtn = document.getElementById('addEntryBtn');
+    const newEntryText = document.getElementById('newEntryText');
+
+    let diaryLog = [];
+
+    feedbackBtn.addEventListener('click', () => {
+      renderDiaryEntries();
+      feedbackModal.classList.remove('hidden');
+    });
+
+    closeFeedbackBtn.addEventListener('click', () => {
+      feedbackModal.classList.add('hidden');
+    });
+
+    function renderDiaryEntries() {
+      diaryEntries.innerHTML = '';
+      if (diaryLog.length === 0) {
+        diaryEntries.innerHTML = '<p class="text-sm text-gray-700">No entries yet.</p>';
+        return;
+      }
+      diaryLog.forEach(entry => {
+        const entryDiv = document.createElement('div');
+        entryDiv.className = "mb-3 border-b pb-2";
+        entryDiv.innerHTML = `<p class="text-sm text-gray-600">${entry.date}</p>
+          <p class="text-sm text-gray-800">${entry.text}</p>`;
+        diaryEntries.appendChild(entryDiv);
+      });
+    }
+
+    addEntryBtn.addEventListener('click', () => {
+      const text = newEntryText.value.trim();
+      if (text === "") return;
+      const today = new Date();
+      const dateString = today.toLocaleDateString('default', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+      const newEntry = { date: dateString, text: text };
+      diaryLog.push(newEntry);
+      newEntryText.value = "";
+      renderDiaryEntries();
+    });
   </script>
 </body>
 </html>

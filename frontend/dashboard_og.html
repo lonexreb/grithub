@@ -1,0 +1,266 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training Plan Dashboard - Grithub</title>
+  
+  <!-- TailwindCSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom CSS if needed -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-gray-50 font-roboto">
+  <!-- Header with Progress Bar -->
+  <header class="text-[#08253B] p-4 flex flex-col items-center">
+    <div class="flex items-center space-x-3">
+      <img src="images/logo.png" alt="Grithub Logo" class="w-10 h-10" />
+      <h1 class="text-xl font-bold">Grithub: Your Sports Skill Development Journey</h1>
+    </div>
+    <nav class="mt-2">
+      <ul class="flex space-x-4">
+        <li><a href="index.html" class="hover:underline">Generate New Plan</a></li>
+        <li><a href="login.html" class="hover:underline">Logout</a></li>
+      </ul>
+    </nav>
+
+    <!-- Gamified Progress Bar (max 10 levels) -->
+    <div class="mt-4 w-full max-w-xl px-4">
+      <div class="relative h-4 bg-gray-300 rounded-full">
+        <div id="progressFill" class="absolute top-0 left-0 h-4 bg-blue-600 rounded-full" style="width: 0%;"></div>
+      </div>
+      <div class="text-center text-sm mt-2" id="progressLabel">Level 0 / 10</div>
+    </div>
+  </header>
+  
+  <!-- Main Content: Cards Container -->
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <div id="card-container" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+  </main>
+  
+  <!-- Modal Popup Container (hidden by default) -->
+  <div id="cardModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full relative overflow-auto max-h-full">
+      <!-- Close Button -->
+      <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-600 text-2xl font-bold">&times;</button>
+      <!-- Modal Content Will Be Injected Here -->
+      <div id="modalContent"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Global progress tracking
+    let completedLevels = 0;
+    const totalLevels = 10;
+
+    function updateProgressBar() {
+      const progressFill = document.getElementById('progressFill');
+      const progressLabel = document.getElementById('progressLabel');
+      const percent = (completedLevels / totalLevels) * 100;
+      progressFill.style.width = percent + '%';
+      progressLabel.textContent = `Level ${completedLevels} / ${totalLevels}`;
+    }
+
+    function incrementProgress() {
+      if (completedLevels < totalLevels) {
+        completedLevels++;
+        updateProgressBar();
+      }
+    }
+
+    function decrementProgress() {
+      if (completedLevels > 0) {
+        completedLevels--;
+        updateProgressBar();
+      }
+    }
+
+    // Retrieve the plan from localStorage
+    const storedPlan = localStorage.getItem("trainingPlan");
+    let trainingPlan = null;
+
+    if (!storedPlan) {
+      // If no plan in localStorage, show an error or redirect
+      alert("No training plan found. Please generate one first.");
+      window.location.href = "index.html";
+    } else {
+      trainingPlan = JSON.parse(storedPlan);
+      console.log("Loaded plan from localStorage:", trainingPlan);
+    }
+
+    // If we have a plan, let's dynamically create the cards
+    if (trainingPlan && trainingPlan.cards) {
+      const cardContainer = document.getElementById('card-container');
+      trainingPlan.cards.forEach(card => {
+        const cardElement = createCard(card);
+        cardContainer.appendChild(cardElement);
+      });
+    }
+
+    // Create a card element
+    function createCard(card) {
+      const cardDiv = document.createElement('div');
+      cardDiv.className = "bg-[#D2ECFF] p-4 rounded-3xl shadow level-card relative";
+
+      // Medal Icon in top-right (grey by default)
+      const medalIcon = document.createElement('img');
+      medalIcon.src = "images/medal-grey.png";
+      medalIcon.className = "w-8 h-8 absolute top-4 right-4 cursor-pointer";
+      cardDiv.appendChild(medalIcon);
+      
+      let completed = false;
+      medalIcon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!completed) {
+          completed = true;
+          medalIcon.src = "images/medal-gold.png";
+          incrementProgress();
+        } else {
+          completed = false;
+          medalIcon.src = "images/medal-grey.png";
+          decrementProgress();
+        }
+      });
+
+      // Card Title
+      const titleEl = document.createElement('h2');
+      titleEl.className = "text-lg font-bold text-gray-800";
+      titleEl.textContent = "Level-" + card.cardNumber + ": " + card.title;
+      cardDiv.appendChild(titleEl);
+      
+      // Objectives
+      const objContainer = document.createElement('div');
+      objContainer.className = "mt-2";
+      card.objectives.forEach(obj => {
+        const span = document.createElement('span');
+        span.className = "inline-block bg-gray-200 text-gray-700 px-2 py-1 mr-2 mb-2 rounded";
+        span.textContent = obj;
+        objContainer.appendChild(span);
+      });
+      cardDiv.appendChild(objContainer);
+
+      // Video Upload Section
+      const videoDiv = document.createElement('div');
+      videoDiv.className = "mt-4";
+      videoDiv.innerHTML = `
+        <hr class="my-2"/>
+        <label for="video-upload-level-${card.cardNumber}" class="block text-sm font-medium text-gray-700 mb-1">Upload Your Routine</label>
+        <input type="file" id="video-upload-level-${card.cardNumber}" accept="video/*" class="block w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 cursor-pointer focus:outline-none"/>
+      `;
+      cardDiv.appendChild(videoDiv);
+
+      // Button to open modal with detailed info
+      const detailsButton = document.createElement('button');
+      detailsButton.className = "mt-4 w-full bg-[#00C3C8] text-white rounded p-2 hover:bg-green-700 transition";
+      detailsButton.textContent = "View 2-Week Routine Details";
+      detailsButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        openModal(card);
+      });
+      cardDiv.appendChild(detailsButton);
+      
+      return cardDiv;
+    }
+
+    // Open Modal with Detailed Info (14-day calendar, etc.)
+    function openModal(card) {
+      const modalContent = document.getElementById('modalContent');
+      modalContent.innerHTML = '';
+
+      // Title
+      const modalTitle = document.createElement('h2');
+      modalTitle.className = "text-xl font-bold mb-4";
+      modalTitle.textContent = "Level-" + card.cardNumber + ": " + card.title;
+      modalContent.appendChild(modalTitle);
+
+      // Objectives
+      const objectivesDiv = document.createElement('div');
+      objectivesDiv.className = "mb-4";
+      card.objectives.forEach(obj => {
+        const span = document.createElement('span');
+        span.className = "inline-block bg-gray-200 text-gray-700 px-2 py-1 mr-2 mb-2 rounded";
+        span.textContent = obj;
+        objectivesDiv.appendChild(span);
+      });
+      modalContent.appendChild(objectivesDiv);
+
+      // Routine Details
+      const routineHeader = document.createElement('h3');
+      routineHeader.className = "font-semibold mb-2";
+      routineHeader.textContent = "Routine Details:";
+      modalContent.appendChild(routineHeader);
+
+      card.routine.forEach(item => {
+        const routineItem = document.createElement('p');
+        routineItem.className = "text-sm text-gray-600 mb-1";
+        routineItem.innerHTML = `<strong>${item.exercise}</strong> - Sets: ${item.sets}, Reps: ${item.reps}, Rest: ${item.rest}. ${item.description}`;
+        modalContent.appendChild(routineItem);
+      });
+
+      // Challenges
+      const challengesHeader = document.createElement('h3');
+      challengesHeader.className = "font-semibold mt-4 mb-2";
+      challengesHeader.textContent = "Challenges:";
+      modalContent.appendChild(challengesHeader);
+
+      card.challenges.forEach(challenge => {
+        const challengeItem = document.createElement('p');
+        challengeItem.className = "text-sm text-gray-600 mb-1";
+        challengeItem.textContent = challenge;
+        modalContent.appendChild(challengeItem);
+      });
+
+      // 14-Day Calendar
+      const dailyProgressHeader = document.createElement('h3');
+      dailyProgressHeader.className = "font-semibold mt-4 mb-2";
+      dailyProgressHeader.textContent = "2-Week Daily Progress:";
+      modalContent.appendChild(dailyProgressHeader);
+
+      const progressGrid = document.createElement('div');
+      progressGrid.className = "grid grid-cols-7 gap-2 mb-2";
+
+      const totalDays = 14;
+      let completedDays = 0;
+
+      const dailyProgressLabel = document.createElement('div');
+      dailyProgressLabel.className = "text-sm text-gray-700 mb-2";
+      dailyProgressLabel.textContent = `Progress: ${completedDays} / ${totalDays} days completed`;
+
+      for (let i = 1; i <= totalDays; i++) {
+        const dayCell = document.createElement('div');
+        dayCell.className = "w-10 h-10 border border-gray-300 rounded flex items-center justify-center cursor-pointer";
+        dayCell.textContent = i;
+        dayCell.dataset.completed = "false";
+
+        dayCell.addEventListener('click', function(e) {
+          if (dayCell.dataset.completed === "false") {
+            dayCell.dataset.completed = "true";
+            dayCell.classList.add('bg-green-500', 'text-white');
+            completedDays++;
+          } else {
+            dayCell.dataset.completed = "false";
+            dayCell.classList.remove('bg-green-500', 'text-white');
+            completedDays--;
+          }
+          dailyProgressLabel.textContent = `Progress: ${completedDays} / ${totalDays} days completed`;
+        });
+
+        progressGrid.appendChild(dayCell);
+      }
+
+      modalContent.appendChild(progressGrid);
+      modalContent.appendChild(dailyProgressLabel);
+
+      document.getElementById('cardModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('cardModal').classList.add('hidden');
+    }
+
+    // Initialize progress bar
+    updateProgressBar();
+  </script>
+</body>
+</html>
